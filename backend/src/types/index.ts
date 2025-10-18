@@ -79,6 +79,7 @@ export interface Dealer {
   distance: number;
   inventory: string[]; // Vehicle IDs
   specialOffers?: string[];
+  certified?: boolean; // Toyota Certified Used Vehicles participation
 }
 
 export interface MaintenanceRecord {
