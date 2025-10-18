@@ -8,12 +8,12 @@ const router = Router();
  */
 router.post('/estimate', (req: Request, res: Response) => {
   try {
-    const { make, model, year, mileage, condition, vin } = req.body;
+    const { make, model, year, condition, vin } = req.body;
 
-    if (!make || !model || !year || !mileage || !condition) {
+    if (!make || !model || !year || !condition) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: make, model, year, mileage, condition'
+        error: 'Missing required fields: make, model, year, condition'
       });
     }
 
@@ -28,10 +28,6 @@ router.post('/estimate', (req: Request, res: Response) => {
       depreciationFactor *= 0.85;
     }
 
-    // Mileage adjustment (average 12k miles/year)
-    const expectedMileage = age * 12000;
-    const mileageAdjustment = mileage > expectedMileage ? 0.9 : 1.0;
-
     // Condition adjustment
     const conditionFactors: Record<string, number> = {
       'excellent': 1.1,
@@ -42,7 +38,7 @@ router.post('/estimate', (req: Request, res: Response) => {
     const conditionFactor = conditionFactors[condition] || 1.0;
 
     const estimatedValue = Math.round(
-      baseValue * depreciationFactor * mileageAdjustment * conditionFactor
+      baseValue * depreciationFactor * conditionFactor
     );
 
     const lowRange = Math.round(estimatedValue * 0.9);
@@ -51,13 +47,12 @@ router.post('/estimate', (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-        vehicle: { make, model, year, mileage, condition, vin },
+        vehicle: { make, model, year, condition, vin },
         estimatedValue,
         range: { low: lowRange, high: highRange },
         factors: {
           age,
           depreciation: `${((1 - depreciationFactor) * 100).toFixed(1)}%`,
-          mileageAdjustment: mileage > expectedMileage ? 'Above average' : 'Average',
           condition: condition.charAt(0).toUpperCase() + condition.slice(1)
         },
         recommendations: [

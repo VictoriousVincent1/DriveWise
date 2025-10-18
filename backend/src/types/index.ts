@@ -54,7 +54,6 @@ export interface TradeInEstimate {
   year: number;
   make: string;
   model: string;
-  mileage: number;
   condition: 'excellent' | 'good' | 'fair' | 'poor';
   estimatedValue: number;
   tradeInValue: number;
@@ -88,7 +87,6 @@ export interface MaintenanceRecord {
   type: 'oil-change' | 'tire-rotation' | 'inspection' | 'repair' | 'other';
   description: string;
   date: Date;
-  mileage: number;
   cost: number;
   dealerId?: string;
 }
