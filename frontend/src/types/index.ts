@@ -78,10 +78,20 @@ export type ServiceReminder = {
 };
 
 export type TradeInEstimate = {
+  vin?: string;
   make: string;
   model: string;
   year: number;
+  mileage: number;
   condition: 'excellent' | 'good' | 'fair' | 'poor';
   estimatedValue: number;
+  tradeInValue?: number;
+  privatePartyValue?: number;
+  recommendation?: 'trade-in' | 'sell-private';
+  reasoning?: string;
+  impactOnNewPurchase?: {
+    reducedDownPayment: number;
+    reducedMonthlyPayment: number;
+  };
   note?: string;
 };

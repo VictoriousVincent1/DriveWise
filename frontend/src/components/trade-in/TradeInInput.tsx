@@ -25,6 +25,7 @@ function estimateTradeIn(vehicle: Partial<Vehicle>): TradeInEstimate {
     make: vehicle.make || '',
     model: vehicle.model || '',
     year: vehicle.year || 2020,
+    mileage: 36000,
     condition,
     estimatedValue: value,
     note: 'Estimate based on year and model. Actual value may vary.',

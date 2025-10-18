@@ -1,8 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { TradeInEstimate } from '@/types';
-import { formatCurrency, estimateTradeInDepreciation, validateVIN } from '@/lib/utils';
+import { useEffect, useState } from 'react';
+import { TradeInEstimate } from '../../types';
+import { formatCurrency, estimateTradeInDepreciation, validateVIN } from '../../lib/utils';
+import { auth, db } from '../../lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function TradeInCalculator() {
   const [step, setStep] = useState<'input' | 'result'>('input');
@@ -15,8 +18,34 @@ export default function TradeInCalculator() {
     condition: 'good' as 'excellent' | 'good' | 'fair' | 'poor',
   });
   const [estimate, setEstimate] = useState<TradeInEstimate | null>(null);
+  const [uid, setUid] = useState<string | null>(null);
 
-  const handleCalculate = () => {
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setUid(null);
+        return;
+      }
+      setUid(user.uid);
+      // load last estimate
+      try {
+        const ref = doc(db, 'users', user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data() as any;
+          if (data.lastTradeInEstimate) {
+            // user can optionally see or override
+            console.log('Last trade-in estimate found:', data.lastTradeInEstimate);
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load profile (Firestore offline?)', err);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const handleCalculate = async () => {
     // Simulate trade-in calculation
     const msrp = 28000; // Example MSRP
     const age = new Date().getFullYear() - formData.year;
@@ -54,6 +83,21 @@ export default function TradeInCalculator() {
     
     setEstimate(newEstimate);
     setStep('result');
+
+    // save to Firestore
+    if (uid) {
+      try {
+        const ref = doc(db, 'users', uid);
+        await setDoc(
+          ref,
+          { lastTradeInEstimate: newEstimate, updatedAt: serverTimestamp() },
+          { merge: true }
+        );
+        console.log('Saved trade-in estimate to profile.');
+      } catch (err) {
+        console.error('Could not save trade-in estimate to Firestore', err);
+      }
+    }
   };
 
   const handleReset = () => {
@@ -106,12 +150,12 @@ export default function TradeInCalculator() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
               <p className="text-sm text-gray-600 mb-1">Trade-In Value</p>
-              <p className="text-3xl font-bold text-blue-600">{formatCurrency(estimate.tradeInValue)}</p>
+              <p className="text-3xl font-bold text-blue-600">{formatCurrency(estimate.tradeInValue ?? 0)}</p>
               <p className="text-xs text-gray-500 mt-1">What dealer will offer</p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
               <p className="text-sm text-gray-600 mb-1">Private Party Value</p>
-              <p className="text-3xl font-bold text-green-600">{formatCurrency(estimate.privatePartyValue)}</p>
+              <p className="text-3xl font-bold text-green-600">{formatCurrency(estimate.privatePartyValue ?? 0)}</p>
               <p className="text-xs text-gray-500 mt-1">If you sell yourself</p>
             </div>
             <div className="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
@@ -125,7 +169,7 @@ export default function TradeInCalculator() {
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg">
             <h3 className="font-bold text-lg mb-2">💡 Our Recommendation</h3>
             <p className="text-lg mb-2 capitalize">
-              <strong>{estimate.recommendation.replace('-', ' ')}</strong>
+              <strong>{(estimate.recommendation ?? 'trade-in').replace('-', ' ')}</strong>
             </p>
             <p className="text-sm opacity-90">{estimate.reasoning}</p>
           </div>
@@ -180,7 +224,7 @@ export default function TradeInCalculator() {
                 <div className="flex-1">
                   <p className="font-semibold">Private Sale Benefits</p>
                   <ul className="text-sm text-gray-600 mt-1 space-y-1">
-                    <li>✓ Potentially {formatCurrency(estimate.privatePartyValue - estimate.tradeInValue)} more</li>
+                    <li>✓ Potentially {formatCurrency((estimate.privatePartyValue ?? 0) - (estimate.tradeInValue ?? 0))} more</li>
                     <li>✓ More control over sale price</li>
                     <li>✗ Takes time and effort</li>
                     <li>✗ Safety concerns meeting strangers</li>
