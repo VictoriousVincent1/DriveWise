@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { calculateMonthlyPayment, formatCurrency, formatPercent, calculateTotalInterest } from '@/lib/utils';
+import { calculateMonthlyPayment, formatCurrency, formatPercent, calculateTotalInterest } from '../../lib/utils';
 
 interface PaymentSimulatorProps {
   defaultPrice?: number;

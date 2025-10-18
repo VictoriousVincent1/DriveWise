@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import DealerChatbot from '@/components/dealer-connect/DealerChatbot';
-import VehicleComparison from '@/components/dealer-connect/VehicleComparison';
-import DealerList from '@/components/dealer-connect/DealerList';
-import { mockVehicles } from '@/lib/mockData/vehicles';
-import { mockDealers } from '@/lib/mockData/dealers';
+import DealerChatbot from '../../components/dealer-connect/DealerChatbot';
+import VehicleComparison from '../../components/dealer-connect/VehicleComparison';
+import DealerList from '../../components/dealer-connect/DealerList';
+import SavedCars from '../../components/dealer-connect/SavedCars';
+import CarQuiz from '../../components/dealer-connect/CarQuiz';
+import { mockVehicles } from '../../../../backend/src/data/vehicles';
+import { mockDealers } from '../../../../backend/src/data/dealers';
 
 export default function DealerConnectPage() {
   const [mode, setMode] = useState<'chat' | 'visual'>('visual');
@@ -53,8 +55,17 @@ export default function DealerConnectPage() {
           <DealerChatbot />
         ) : (
           <>
-            <VehicleComparison vehicles={comparisonVehicles} dealers={nearbyDealers} />
-            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                {/* Saved Cars Segment */}
+                <SavedCars />
+              </div>
+              <div>
+                {/* Car Quiz Segment */}
+                <CarQuiz />
+              </div>
+            </div>
+
             <div>
               <h2 className="text-2xl font-bold mb-6">Nearby Toyota Dealers</h2>
               <DealerList dealers={nearbyDealers} />
