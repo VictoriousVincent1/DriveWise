@@ -6,17 +6,57 @@ export const APP_TAGLINE = 'Your Smart Companion for Car Financing & Ownership';
 export const NESSIE_API_BASE_URL = process.env.NEXT_PUBLIC_NESSIE_API_URL || 'http://api.nessieisreal.com';
 export const NESSIE_API_KEY = process.env.NESSIE_API_KEY || '';
 
-// Toyota Models Data
+// Toyota & Lexus Models Data
 export const TOYOTA_MODELS = [
-  { id: 'camry-2024', name: 'Camry', category: 'sedan', startingPrice: 26420 },
+  // Toyota Sedans
   { id: 'corolla-2024', name: 'Corolla', category: 'sedan', startingPrice: 21550 },
+  { id: 'camry-2024', name: 'Camry', category: 'sedan', startingPrice: 26420 },
+  { id: 'avalon-2024', name: 'Avalon', category: 'sedan', startingPrice: 37850 },
+  { id: 'crown-2024', name: 'Crown', category: 'sedan', startingPrice: 52350 },
+  
+  // Toyota SUVs
   { id: 'rav4-2024', name: 'RAV4', category: 'suv', startingPrice: 28475 },
-  { id: 'highlander-2024', name: 'Highlander', category: 'suv', startingPrice: 37935 },
+  { id: 'highlander-2024', name: 'Highlander', category: 'suv', startingPrice: 42665 },
+  { id: '4runner-2024', name: '4Runner', category: 'suv', startingPrice: 42295 },
+  { id: 'sequoia-2024', name: 'Sequoia', category: 'suv', startingPrice: 70765 },
+  { id: 'land-cruiser-2024', name: 'Land Cruiser', category: 'suv', startingPrice: 58300 },
+  
+  // Toyota Trucks
   { id: 'tacoma-2024', name: 'Tacoma', category: 'truck', startingPrice: 28600 },
   { id: 'tundra-2024', name: 'Tundra', category: 'truck', startingPrice: 39965 },
+  
+  // Toyota Hybrids
   { id: 'prius-2024', name: 'Prius', category: 'hybrid', startingPrice: 28545 },
+  { id: 'prius-prime-2024', name: 'Prius Prime', category: 'hybrid', startingPrice: 35635 },
+  { id: 'rav4-prime-2024', name: 'RAV4 Prime', category: 'hybrid', startingPrice: 44425 },
+  { id: 'camry-hybrid-2024', name: 'Camry Hybrid', category: 'hybrid', startingPrice: 30895 },
+  { id: 'corolla-hybrid-2024', name: 'Corolla Hybrid', category: 'hybrid', startingPrice: 24300 },
+  
+  // Toyota Electric
   { id: 'bz4x-2024', name: 'bZ4X', category: 'electric', startingPrice: 42000 },
 ];
+
+export const LEXUS_MODELS = [
+  // Lexus Sedans
+  { id: 'lexus-is-2024', name: 'IS', category: 'sedan', startingPrice: 42565 },
+  { id: 'lexus-es-2024', name: 'ES', category: 'sedan', startingPrice: 43190 },
+  { id: 'lexus-ls-2024', name: 'LS', category: 'sedan', startingPrice: 77635 },
+  { id: 'lexus-rc-2024', name: 'RC', category: 'sedan', startingPrice: 44565 },
+  { id: 'lexus-lc-2024', name: 'LC', category: 'sedan', startingPrice: 97755 },
+  
+  // Lexus SUVs
+  { id: 'lexus-ux-2024', name: 'UX', category: 'suv', startingPrice: 38535 },
+  { id: 'lexus-nx-2024', name: 'NX', category: 'suv', startingPrice: 42465 },
+  { id: 'lexus-rx-2024', name: 'RX', category: 'suv', startingPrice: 50325 },
+  { id: 'lexus-tx-2024', name: 'TX', category: 'suv', startingPrice: 56050 },
+  { id: 'lexus-gx-2024', name: 'GX', category: 'suv', startingPrice: 65250 },
+  { id: 'lexus-lx-2024', name: 'LX', category: 'suv', startingPrice: 92350 },
+  
+  // Lexus Electric
+  { id: 'lexus-rz-2024', name: 'RZ', category: 'electric', startingPrice: 61215 },
+];
+
+export const ALL_MODELS = [...TOYOTA_MODELS, ...LEXUS_MODELS];
 
 // Credit Score Ranges
 export const CREDIT_SCORE_RANGES = {
