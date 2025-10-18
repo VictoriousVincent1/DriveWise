@@ -53,12 +53,12 @@ export default function RootLayout({
               </div>
 
               <div className="flex items-center space-x-4">
-                <button className="text-gray-700 hover:text-blue-600 font-medium">
+                <Link href="/auth/login" className="text-gray-700 hover:text-blue-600 font-medium">
                   Sign In
-                </button>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                </Link>
+                <Link href="/auth/signup" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                   Get Started
-                </button>
+                </Link>
               </div>
             </div>
           </div>
