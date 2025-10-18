@@ -1,6 +1,6 @@
 'use client';
 
-import { Dealer } from '@/types';
+import type { Dealer } from '../../types';
 
 interface DealerListProps {
   dealers: Dealer[];

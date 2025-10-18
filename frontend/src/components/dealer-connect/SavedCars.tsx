@@ -1,21 +1,9 @@
 import React, { useState } from 'react';
-
-// Define Vehicle type locally for frontend
-interface Vehicle {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  trim: string;
-  msrp: number;
-  image: string;
-  features: string[];
-  fuelEconomy: { city: number; highway: number };
-  category: 'sedan' | 'suv' | 'truck' | 'hybrid' | 'electric' | 'sports' | 'minivan' | 'crossover';
-}
+import type { Vehicle } from '../../types';
+import VehicleComparison from './VehicleComparison';
 
 // Dummy data for now; replace with real saved cars from user state or backend
-const mockSavedCars: Vehicle[] = [
+export const mockSavedCars: Vehicle[] = [
   // Example vehicles
   {
     id: 'camry-2026-le',
@@ -54,7 +42,7 @@ export default function SavedCars() {
   const selectedCars = mockSavedCars.filter(car => selected.includes(car.id));
 
   return (
-    <div className="bg-white rounded shadow p-4 mb-6">
+  <div className="bg-white rounded shadow p-4 mb-6 h-full">
       <h2 className="text-lg font-bold mb-2">Your Saved Cars</h2>
       <div className="flex flex-wrap gap-4">
         {mockSavedCars.map(car => (
@@ -128,6 +116,13 @@ export default function SavedCars() {
               <p className="text-sm text-gray-600">(Show where each car falls in your budget here...)</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Also show the comparison chart inline at the bottom when 2+ cars are selected */}
+      {selectedCars.length >= 2 && (
+        <div className="mt-6">
+          <VehicleComparison vehicles={selectedCars} />
         </div>
       )}
     </div>
