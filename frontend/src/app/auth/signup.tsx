@@ -2,11 +2,14 @@
 import { useState } from "react";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../lib/firebase";
+import { db } from "../../lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -14,8 +17,25 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push("/profile");
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      if (role === "dealer-employee") {
+        // Save dealer employee info to 'dealers' collection
+        await setDoc(doc(db, "dealers", user.uid), {
+          email,
+          role,
+          createdAt: new Date().toISOString(),
+        });
+        router.push("/dealer-employee");
+      } else {
+        // Save user info to 'users' collection
+        await setDoc(doc(db, "users", user.uid), {
+          email,
+          role,
+          createdAt: new Date().toISOString(),
+        });
+        router.push("/profile");
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -42,6 +62,13 @@ export default function SignupPage() {
         <div>
           <label className="block mb-1">Password</label>
           <input type="password" className="w-full border rounded px-2 py-1" value={password} onChange={e => setPassword(e.target.value)} required />
+        </div>
+        <div>
+          <label className="block mb-1">Sign up as</label>
+          <select className="w-full border rounded px-2 py-1" value={role} onChange={e => setRole(e.target.value)}>
+            <option value="user">Customer/User</option>
+            <option value="dealer-employee">Dealership Employee</option>
+          </select>
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Sign Up</button>

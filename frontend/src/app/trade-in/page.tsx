@@ -68,7 +68,7 @@ export default function TradeInPage() {
         </p>
       </div>
 
-      {/* Toyota ownership save card */}
+      {/* Toyota ownership save card (moved from Finance Fit) */}
       <div className="mb-8 bg-white rounded-lg shadow p-6 border border-gray-200">
         <h2 className="text-xl font-semibold mb-3">Do you currently own a Toyota?</h2>
         <p className="text-sm text-gray-600 mb-4">We’ll save this to your profile to tailor recommendations.</p>

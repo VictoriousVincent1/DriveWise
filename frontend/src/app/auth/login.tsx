@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [role, setRole] = useState("user");
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -15,7 +16,11 @@ export default function LoginPage() {
     setError("");
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/profile");
+      if (role === "dealer-employee") {
+        router.push("/dealer-employee");
+      } else {
+        router.push("/profile");
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -42,6 +47,13 @@ export default function LoginPage() {
         <div>
           <label className="block mb-1">Password</label>
           <input type="password" className="w-full border rounded px-2 py-1" value={password} onChange={e => setPassword(e.target.value)} required />
+        </div>
+        <div>
+          <label className="block mb-1">Login as</label>
+          <select className="w-full border rounded px-2 py-1" value={role} onChange={e => setRole(e.target.value)}>
+            <option value="user">Customer/User</option>
+            <option value="dealer-employee">Dealership Employee</option>
+          </select>
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Sign In</button>
