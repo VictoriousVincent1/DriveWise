@@ -6,57 +6,19 @@ import { getDaysUntil, formatDate } from '@/lib/utils';
 
 export default function MaintenanceTracker() {
   const [reminders] = useState<ServiceReminder[]>([
-    {
-      id: '1',
-      vehicleId: 'user-vehicle-1',
-      type: 'Oil Change',
-      dueDate: new Date(2024, 10, 25),
-      dueMileage: 45000,
-      priority: 'high',
-      completed: false,
-    },
-    {
-      id: '2',
-      vehicleId: 'user-vehicle-1',
-      type: 'Tire Rotation',
-      dueDate: new Date(2024, 10, 25),
-      dueMileage: 45000,
-      priority: 'medium',
-      completed: false,
-    },
-    {
-      id: '3',
-      vehicleId: 'user-vehicle-1',
-      type: 'Brake Inspection',
-      dueDate: new Date(2024, 11, 15),
-      dueMileage: 50000,
-      priority: 'medium',
-      completed: false,
-    },
-    {
-      id: '4',
-      vehicleId: 'user-vehicle-1',
-      type: 'Air Filter Replacement',
-      dueDate: new Date(2025, 0, 10),
-      dueMileage: 50000,
-      priority: 'low',
-      completed: false,
-    },
+    { id: '1', title: 'Oil Change', dueDate: new Date(2024, 10, 25).toISOString(), completed: false },
+    { id: '2', title: 'Tire Rotation', dueDate: new Date(2024, 10, 25).toISOString(), completed: false },
+    { id: '3', title: 'Brake Inspection', dueDate: new Date(2024, 11, 15).toISOString(), completed: false },
+    { id: '4', title: 'Air Filter Replacement', dueDate: new Date(2025, 0, 10).toISOString(), completed: false },
   ]);
 
+  // Example context values (could be sourced from user vehicle profile)
   const currentMileage = 43850;
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-50 border-red-200 text-red-700';
-      case 'medium':
-        return 'bg-yellow-50 border-yellow-200 text-yellow-700';
-      case 'low':
-        return 'bg-blue-50 border-blue-200 text-blue-700';
-      default:
-        return 'bg-gray-50 border-gray-200 text-gray-700';
-    }
+  const getPriorityColor = (daysUntil: number) => {
+    if (daysUntil < 0) return 'bg-red-50 border-red-200 text-red-700';
+    if (daysUntil <= 7) return 'bg-yellow-50 border-yellow-200 text-yellow-700';
+    return 'bg-blue-50 border-blue-200 text-blue-700';
   };
 
   return (
@@ -75,37 +37,29 @@ export default function MaintenanceTracker() {
       <div className="space-y-4">
         {reminders
           .filter((r) => !r.completed)
-          .sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
+          .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
           .map((reminder) => {
-            const daysUntil = getDaysUntil(reminder.dueDate);
-            const milesUntil = reminder.dueMileage - currentMileage;
+            const due = new Date(reminder.dueDate);
+            const daysUntil = getDaysUntil(due);
 
             return (
               <div
                 key={reminder.id}
-                className={`border-2 rounded-lg p-4 ${getPriorityColor(reminder.priority)}`}
+                className={`border-2 rounded-lg p-4 ${getPriorityColor(daysUntil)}`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-bold text-lg">{reminder.type}</h3>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full capitalize ${
-                          reminder.priority === 'high'
-                            ? 'bg-red-200'
-                            : reminder.priority === 'medium'
-                            ? 'bg-yellow-200'
-                            : 'bg-blue-200'
-                        }`}
-                      >
-                        {reminder.priority}
+                      <h3 className="font-bold text-lg">{reminder.title}</h3>
+                      <span className={`text-xs px-2 py-1 rounded-full ${daysUntil < 0 ? 'bg-red-200' : daysUntil <= 7 ? 'bg-yellow-200' : 'bg-blue-200'}`}>
+                        {daysUntil < 0 ? 'Overdue' : daysUntil <= 7 ? 'Due soon' : 'Upcoming'}
                       </span>
                     </div>
 
                     <div className="space-y-1 text-sm">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Due Date:</span>
-                        <span>{formatDate(reminder.dueDate)}</span>
+                        <span>{formatDate(new Date(reminder.dueDate))}</span>
                         {daysUntil <= 7 && daysUntil >= 0 && (
                           <span className="text-red-600 font-semibold">
                             ({daysUntil} days)
@@ -117,15 +71,7 @@ export default function MaintenanceTracker() {
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Due Mileage:</span>
-                        <span>{reminder.dueMileage.toLocaleString()} miles</span>
-                        {milesUntil <= 500 && milesUntil >= 0 && (
-                          <span className="text-orange-600 font-semibold">
-                            ({milesUntil} miles to go)
-                          </span>
-                        )}
-                      </div>
+                      {/* Optional mileage section can be added if your reminders track miles */}
                     </div>
                   </div>
 

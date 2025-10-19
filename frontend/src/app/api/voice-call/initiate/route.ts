@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     // Create TwiML for the call
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3003';
-    const twimlUrl = `${baseUrl}/api/voice-call/twiml?userName=${encodeURIComponent(userName || 'there')}&context=${encodeURIComponent(context || 'general')}`;
+  const twimlUrl = `${baseUrl}/api/voice-call/twiml?userName=${encodeURIComponent(userName || 'there')}&context=${encodeURIComponent(context || 'general')}${userId ? `&userId=${encodeURIComponent(String(userId))}` : ''}`;
 
     // Initiate the call
     const call = await client.calls.create({

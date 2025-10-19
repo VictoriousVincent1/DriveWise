@@ -121,7 +121,7 @@ export function getVehicleById(id: number): Vehicle | undefined {
 
 export function getVehiclesByPriceRange(minPrice: number, maxPrice: number): Vehicle[] {
   return mockVehicles.filter(
-    vehicle => vehicle.price >= minPrice && vehicle.price <= maxPrice
+    vehicle => (vehicle.price ?? 0) >= minPrice && (vehicle.price ?? 0) <= maxPrice
   );
 }
 

@@ -97,6 +97,7 @@ export default function CarQuiz() {
   const filtered = useMemo(() => {
     const scored = inventory.map((v) => {
       let score = 0;
+      const category = (v.category || '').toString();
 
       // body preference
       const body = answers.body;
@@ -109,20 +110,21 @@ export default function CarQuiz() {
 
       // party size
       const party = answers.partySize;
-      if (party === '6+' && ['suv', 'minivan', 'truck'].includes(v.category)) score += 2;
-      if (party === '3-5' && ['suv', 'minivan'].includes(v.category)) score += 1;
-      if (party === '1-2' && v.category === 'sedan') score += 1;
+  if (party === '6+' && ['suv', 'minivan', 'truck'].includes(category)) score += 2;
+  if (party === '3-5' && ['suv', 'minivan'].includes(category)) score += 1;
+  if (party === '1-2' && category === 'sedan') score += 1;
 
       // cargo
       const cargo = answers.cargo;
-      if (cargo === 'Yes, lots of space' && ['suv', 'minivan', 'truck'].includes(v.category)) score += 2;
-      if (cargo === 'A little space is fine' && ['suv', 'sedan'].includes(v.category)) score += 1;
+  if (cargo === 'Yes, lots of space' && ['suv', 'minivan', 'truck'].includes(category)) score += 2;
+  if (cargo === 'A little space is fine' && ['suv', 'sedan'].includes(category)) score += 1;
 
       // efficiency
       const efficiency = answers.efficiency;
-      const isHybrid = v.features.some((f) => f.toLowerCase().includes('hybrid'));
-      if (efficiency === 'Very important' && (v.fuelEconomy.city >= 30 || isHybrid)) score += 2;
-      if (efficiency === 'Somewhat important' && (v.fuelEconomy.city >= 25 || isHybrid)) score += 1;
+  const isHybrid = Array.isArray(v.features) && v.features.some((f) => f.toLowerCase().includes('hybrid'));
+  const cityMpg = v.fuelEconomy?.city ?? 0;
+  if (efficiency === 'Very important' && (cityMpg >= 30 || isHybrid)) score += 2;
+  if (efficiency === 'Somewhat important' && (cityMpg >= 25 || isHybrid)) score += 1;
 
       // powertrain
       const powertrain = answers.powertrain;
@@ -217,7 +219,7 @@ export default function CarQuiz() {
                   </label>
                 </div>
                 <div className="text-sm text-gray-600 capitalize">{car.category}</div>
-                <div className="text-sm">MSRP ${car.msrp.toLocaleString()}</div>
+                <div className="text-sm">MSRP {car.msrp != null ? `$${car.msrp.toLocaleString()}` : '—'}</div>
               </div>
             ))}
           </div>

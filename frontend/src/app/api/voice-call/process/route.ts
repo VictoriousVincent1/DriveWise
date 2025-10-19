@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
+import { adminDb } from '../../../../lib/firebaseAdmin';
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -16,19 +17,52 @@ export async function POST(request: NextRequest) {
   console.log('Confidence:', confidence);
 
   const VoiceResponse = twilio.twiml.VoiceResponse;
+  const { searchParams } = new URL(request.url);
+  const userId = searchParams.get('userId') || undefined;
   const response = new VoiceResponse();
 
 
   // Generate AI response using Gemini (full LLM)
-  const aiResponse = await generateGeminiResponse(speechResult);
+  // Build context similar to the web chatbot (system limit + user info)
+  let userInfo = '';
+  if (userId) {
+    try {
+      const snap = await adminDb.collection('users').doc(String(userId)).get();
+      if (snap.exists) {
+        const data = snap.data() as any;
+        const { name, email, zipcode, ...rest } = data || {};
+        userInfo = `User info: Name: ${name || 'N/A'}, Email: ${email || 'N/A'}, Zipcode: ${zipcode || 'N/A'}`;
+        for (const [key, value] of Object.entries(rest || {})) {
+          // Avoid dumping very large nested structures
+          if (typeof value === 'object') {
+            try {
+              userInfo += `, ${key}: ${JSON.stringify(value).slice(0, 200)}${JSON.stringify(value).length > 200 ? '…' : ''}`;
+            } catch {
+              userInfo += `, ${key}: [object]`;
+            }
+          } else {
+            userInfo += `, ${key}: ${value}`;
+          }
+        }
+      }
+    } catch {
+      // ignore user info errors; proceed without context
+    }
+  }
+
+  const systemPrompt = 'Please keep your response to a maximum of three sentences.';
+  const personaPrompt = 'You are the same ToyotaPath assistant used in the web chatbot. Keep responses concise, friendly, and conversational. Avoid overly long sentences; prefer short, natural phrasing suitable for phone calls.';
+  const aiResponse = await generateGeminiResponse(speechResult, { systemPrompt, personaPrompt, userInfo });
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3003';
 
 
   // Play AI response using ElevenLabs, allow dynamic voice selection
-  const voice = formData.get('Voice') as string | undefined;
+  // Align voice to chatbot: allow persona/voice selection; default stays if none provided
+  const voice = (formData.get('Voice') as string | undefined) || (process.env.NEXT_PUBLIC_DEFAULT_VOICE_ID || undefined);
   let speakUrl = `${baseUrl}/api/voice-call/speak?text=${encodeURIComponent(aiResponse)}`;
   if (voice) speakUrl += `&voice=${encodeURIComponent(voice)}`;
+  if (userId) speakUrl += `&userId=${encodeURIComponent(userId)}`;
   response.play(speakUrl);
 
   // Check if conversation should continue
@@ -36,7 +70,7 @@ export async function POST(request: NextRequest) {
     // Gather next input
     const gather = response.gather({
       input: ['speech'],
-      action: `${baseUrl}/api/voice-call/process`,
+      action: `${baseUrl}/api/voice-call/process${userId ? `?userId=${encodeURIComponent(userId)}` : ''}`,
       method: 'POST',
       speechTimeout: 'auto',
       speechModel: 'phone_call',
@@ -59,15 +93,19 @@ export async function POST(request: NextRequest) {
 
 
 // Use Gemini LLM for all responses
-async function generateGeminiResponse(userInput: string): Promise<string> {
+async function generateGeminiResponse(
+  userInput: string,
+  ctx?: { systemPrompt?: string; personaPrompt?: string; userInfo?: string }
+): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return 'Sorry, Gemini AI is not configured.';
-  const prompt = `You are a helpful ToyotaPath assistant. Answer the user naturally and conversationally.\n\nUser: ${userInput}\nAssistant:`;
+  const prompt = `${ctx?.personaPrompt || ''}\n${ctx?.systemPrompt || ''}\n${ctx?.userInfo ? ctx.userInfo + '\n' : ''}User: ${userInput}\nAssistant:`;
   // Log the prompt being sent to Gemini
   console.log('--- GEMINI PROMPT ---');
   console.log(prompt);
   try {
-    const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
+    // Use the same model as the web chatbot for consistent style
+    const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=' + apiKey, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),

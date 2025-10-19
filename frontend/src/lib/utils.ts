@@ -38,3 +38,26 @@ export function validateVIN(vin: string): boolean {
   // Basic VIN format check: 17 alphanumeric characters, excluding I, O, Q
   return /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin);
 }
+
+// Ownership helpers
+export function getDaysUntil(date: Date): number {
+  const start = new Date();
+  // Normalize to midnight to avoid DST/timezone wiggles in diff
+  start.setHours(0, 0, 0, 0);
+  const target = new Date(date);
+  target.setHours(0, 0, 0, 0);
+  const msPerDay = 1000 * 60 * 60 * 24;
+  return Math.ceil((target.getTime() - start.getTime()) / msPerDay);
+}
+
+export function formatDate(date: Date): string {
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
+  } catch {
+    return String(date);
+  }
+}
