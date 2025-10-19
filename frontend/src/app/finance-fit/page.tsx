@@ -7,20 +7,15 @@ import { useState, useEffect } from 'react';
 import AffordabilityCalculator from '../../components/finance-fit/AffordabilityCalculator';
 import { calculateMonthlyPayment, calculateTotalInterest, formatCurrency } from '../../lib/utils';
 import { calculateAffordability } from '../../lib/mockData/banking';
-import type { AffordabilityTier, BankingData } from '../../types';
 
 export default function FinanceFitPage() {
   // Trade-in state
   const [tradeIn, setTradeIn] = useState<import('../../types').TradeInEstimate | null>(null);
   const [loading, setLoading] = useState(true);
-  const [affordabilityData, setAffordabilityData] = useState<{
-    tiers: AffordabilityTier[];
-    recommended: AffordabilityTier;
-    bankingData: BankingData;
-  } | null>(null);
+  const [affordabilityData, setAffordabilityData] = useState<Awaited<ReturnType<typeof calculateAffordability>> | null>(null);
 
   // Scenario tool states
-  const [vehiclePrice, setVehiclePrice] = useState(30000);
+  const [vehiclePrice, setVehiclePrice] = useState(35000);
   const [downPayment, setDownPayment] = useState(6000);
   const [creditScore, setCreditScore] = useState(720);
   const [termMonths, setTermMonths] = useState(60);

@@ -6,6 +6,12 @@ export type AffordabilityTier = {
   downPayment: number;
   maxLoanAmount: number;
   recommendedAction: string;
+  reasoning: string;
+};
+
+export type BankingData = {
+  averageMonthlyIncome: number;
+  averageMonthlyExpenses: number;
 };
 
 export interface Vehicle {
@@ -41,12 +47,6 @@ export interface ChatMessage {
   sender: "user" | "bot";
   message: string;
   timestamp: string;
-}
-
-export interface TradeInEstimate {
-  vehicleId: number;
-  estimatedValue: number;
-  offerExpires: string;
 }
 
 export interface MaintenanceRecord {
