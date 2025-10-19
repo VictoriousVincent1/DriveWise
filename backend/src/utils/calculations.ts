@@ -1,4 +1,4 @@
-// Financial calculation utilities for ToyotaPath
+// Financial calculation utilities for DriveWise
 
 /**
  * Calculate monthly payment using loan formula

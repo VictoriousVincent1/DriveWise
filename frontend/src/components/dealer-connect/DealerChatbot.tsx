@@ -9,7 +9,7 @@ export default function DealerChatbot() {
     {
       id: '1',
       role: 'assistant',
-      content: "Hi! I'm your ToyotaPath assistant. I can help you explore financing options, compare vehicles, or connect you with local dealers. What would you like to do today?",
+      content: "Hi! I'm your DriveWise assistant. I can help you explore financing options, compare vehicles, or connect you with local dealers. What would you like to do today?",
   timestamp: new Date().toISOString(),
       suggestions: [
         'Find affordable vehicles',
@@ -75,7 +75,7 @@ export default function DealerChatbot() {
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-lg">ToyotaPath Assistant</h3>
+            <h3 className="font-bold text-lg">DriveWise Assistant</h3>
             <p className="text-sm opacity-90">Your personal car financing guide</p>
           </div>
           <button className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors">

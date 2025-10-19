@@ -1,4 +1,4 @@
-// Mock vehicle data for ToyotaPath
+// Mock vehicle data for DriveWise
 import { Vehicle, FinanceOption } from '@/types';
 
 export const mockVehicles: Vehicle[] = [
@@ -121,7 +121,7 @@ export function getVehicleById(id: number): Vehicle | undefined {
 
 export function getVehiclesByPriceRange(minPrice: number, maxPrice: number): Vehicle[] {
   return mockVehicles.filter(
-    vehicle => vehicle.price >= minPrice && vehicle.price <= maxPrice
+    vehicle => typeof vehicle.price === 'number' && vehicle.price >= minPrice && vehicle.price <= maxPrice
   );
 }
 

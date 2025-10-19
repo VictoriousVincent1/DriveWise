@@ -4,7 +4,7 @@ import VehicleComparison from './VehicleComparison';
 
 // Dummy data for now; replace with real saved cars from user state or backend
 export const mockSavedCars: Vehicle[] = [
-  // Example vehicles
+  //examples
   {
     id: 'camry-2026-le',
     make: 'Toyota',
@@ -51,7 +51,7 @@ export default function SavedCars() {
             <img src={car.image} alt={car.model} className="w-full h-24 object-cover rounded mb-1" />
             <div className="font-semibold">{car.year} {car.make} {car.model}</div>
             <div className="text-sm text-gray-500">{car.trim}</div>
-            <div className="text-sm">${car.msrp.toLocaleString()}</div>
+            <div className="text-sm">{car.msrp != null ? `$${car.msrp.toLocaleString()}` : 'N/A'}</div>
             <input type="checkbox" checked={selected.includes(car.id)} readOnly className="mt-1" /> Select
           </div>
         ))}
@@ -82,13 +82,15 @@ export default function SavedCars() {
                   <tr>
                     <td className="p-2 border font-semibold">MSRP</td>
                     {selectedCars.map(car => (
-                      <td key={car.id} className="p-2 border">${car.msrp.toLocaleString()}</td>
+                      <td key={car.id} className="p-2 border">{car.msrp != null ? `$${car.msrp.toLocaleString()}` : 'N/A'}</td>
                     ))}
                   </tr>
                   <tr>
                     <td className="p-2 border font-semibold">Fuel Economy</td>
                     {selectedCars.map(car => (
-                      <td key={car.id} className="p-2 border">{car.fuelEconomy.city}/{car.fuelEconomy.highway} mpg</td>
+                      <td key={car.id} className="p-2 border">
+                        {car.fuelEconomy ? `${car.fuelEconomy.city}/${car.fuelEconomy.highway} mpg` : 'N/A'}
+                      </td>
                     ))}
                   </tr>
                   <tr>
@@ -102,7 +104,7 @@ export default function SavedCars() {
                     {selectedCars.map(car => (
                       <td key={car.id} className="p-2 border">
                         <ul className="list-disc ml-4">
-                          {car.features.map((f: string) => <li key={f}>{f}</li>)}
+                          {(car.features ?? []).map((f: string) => <li key={f}>{f}</li>)}
                         </ul>
                       </td>
                     ))}

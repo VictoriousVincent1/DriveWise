@@ -43,7 +43,7 @@ export default function GeminiChatbot() {
       if (saved) return JSON.parse(saved);
     }
     return [
-      { role: 'assistant', content: 'Hi! I am your ToyotaPath AI assistant. How can I help you today?' }
+      { role: 'assistant', content: 'Hi! I am your DriveWise AI assistant. How can I help you today?' }
     ];
   });
   const [input, setInput] = useState('');
