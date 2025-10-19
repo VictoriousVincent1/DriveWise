@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
-// customers from API
+// Nessie API - Customers
 export async function getCustomers() {
   const response = await fetch(`${API_URL}/api/nessie/customers`);
   if (!response.ok) throw new Error('Failed to fetch customers');
@@ -27,7 +27,7 @@ export async function createCustomer(customerData: {
   return response.json();
 }
 
-//accounts
+// Nessie API - Accounts
 export async function getCustomerAccounts(customerId: string) {
   const response = await fetch(`${API_URL}/api/nessie/customers/${customerId}/accounts`);
   if (!response.ok) throw new Error('Failed to fetch accounts');
@@ -49,9 +49,25 @@ export async function createAccount(customerId: string, accountData: {
   return response.json();
 }
 
-
+// Nessie API - Transactions
 export async function getAccountTransactions(accountId: string) {
   const response = await fetch(`${API_URL}/api/nessie/accounts/${accountId}/transactions`);
   if (!response.ok) throw new Error('Failed to fetch transactions');
+  return response.json();
+}
+
+// Get financial profile from Nessie
+export async function getFinancialProfile(nessieCustomerId: string) {
+  const response = await fetch(
+    `${API_URL}/api/nessie/customers/${nessieCustomerId}/financial-profile`
+  );
+  if (!response.ok) throw new Error('Failed to fetch financial profile');
+  return response.json();
+}
+
+// Get all customers with financial profiles (admin view)
+export async function getAllCustomersWithProfiles() {
+  const response = await fetch(`${API_URL}/api/admin/customers`);
+  if (!response.ok) throw new Error('Failed to fetch customers');
   return response.json();
 }
