@@ -14,7 +14,7 @@ export default function Home() {
               Your Smart Companion for Car Financing
             </p>
             <p className="text-lg mb-8 opacity-75 max-w-3xl mx-auto">
-              Personalized financing intelligence, transparent dealer connections, and smart trade-in tools
+              Personalized financing intelligence, transparent dealer connections, and smart trade-in tools — 
               all designed to make your car buying journey effortless and informed.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

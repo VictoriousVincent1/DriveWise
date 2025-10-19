@@ -4,8 +4,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
 import { doc, getDoc, updateDoc, serverTimestamp, collection, getDocs, query, where } from "firebase/firestore";
 import { getFinancialProfile, getRecommendations } from "@/lib/api";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { UserPDF } from "../../components/UserPDF";
 
 interface FinancialProfile {
   creditScore: number;
@@ -135,13 +133,6 @@ export default function UserOverviewPage() {
       </div>
     );
   }
-
-  // PDF Download Button
-  const pdfButton = (
-    <PDFDownloadLink document={<UserPDF user={profile} />} fileName="user-info.pdf">
-      {({ loading }) => loading ? "Generating PDF..." : "Download User PDF"}
-    </PDFDownloadLink>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50">
