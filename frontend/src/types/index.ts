@@ -1,105 +1,76 @@
-// Type definitions for ToyotaPath Frontend
+// Frontend-only shared types for Finance Fit and related components
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  suggestions?: string[];
-}
-
-export interface Dealer {
-  id: string;
-  name: string;
-  distance: number;
-  rating: number;
-  address: string;
-  phone: string;
-  specialOffer?: string;
-  imageUrl?: string;
-  inventory?: Vehicle[];
-}
+export type AffordabilityTier = {
+  tier: 'conservative' | 'balanced' | 'stretch' | string;
+  monthlyBudget: number;
+  downPayment: number;
+  maxLoanAmount: number;
+  recommendedAction: string;
+};
 
 export interface Vehicle {
-  id: string;
+  id: number;
   make: string;
   model: string;
   year: number;
-  trim: string;
   price: number;
-  msrp: number;
-  imageUrl: string;
-  mpg?: string;
-  fuelEconomy: {
-    city: number;
-    highway: number;
-  };
-  category: string;
-  features: string[];
-  inStock: boolean;
+  mileage: number;
+  image: string;
+  description?: string;
 }
 
-export interface FinancingOption {
-  id: string;
-  type: 'lease' | 'finance' | 'cash';
-  monthlyPayment?: number;
-  downPayment: number;
-  term?: number;
-  apr?: number;
-  milesPerYear?: number;
-  totalCost: number;
-}
-
-export interface AffordabilityTier {
+export interface Dealer {
+  id: number;
   name: string;
-  monthlyPayment: number;
-  downPayment: number;
-  totalVehiclePrice: number;
-  confidence: number;
-  description: string;
-  color: string;
+  location: string;
+  phone: string;
+  email: string;
+  inventory: Vehicle[];
 }
 
-export interface BankingData {
-  accountId: string;
-  balance: number;
-  averageMonthlyIncome: number;
-  averageMonthlyExpenses: number;
-  savingsRate: number;
-  debtToIncomeRatio: number;
+export interface FinanceOption {
+  id: number;
+  name: string;
+  interestRate: number;
+  termMonths: number;
+  minDownPayment: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: "user" | "bot";
+  message: string;
+  timestamp: string;
 }
 
 export interface TradeInEstimate {
-  vehicleInfo: {
-    year: number;
-    make: string;
-    model: string;
-    trim?: string;
-    mileage: number;
-    condition: 'excellent' | 'good' | 'fair' | 'poor';
-  };
-  estimatedValue: {
-    low: number;
-    average: number;
-    high: number;
-  };
-  factors: {
-    name: string;
-    impact: number;
-    description: string;
-  }[];
+  vehicleId: number;
+  estimatedValue: number;
+  offerExpires: string;
 }
 
-export interface ServiceReminder {
-  id: string;
-  vehicleId: string;
-  type: string;
-  dueDate: Date;
-  dueMileage: number;
-  priority: 'low' | 'medium' | 'high';
-  completed: boolean;
-  currentMileage?: number;
-  status?: 'upcoming' | 'due' | 'overdue';
-  estimatedCost?: number;
-  description?: string;
+export interface MaintenanceRecord {
+  id: number;
+  vehicleId: number;
+  service: string;
+  date: string;
+  cost: number;
+  notes?: string;
 }
+
+export type ServiceReminder = {
+  id: string;
+  title: string;
+  dueDate: string; // ISO date
+  costEstimate?: number;
+  completed?: boolean;
+};
+
+export type TradeInEstimateDetails = {
+  make: string;
+  model: string;
+  year: number;
+  condition: 'excellent' | 'good' | 'fair' | 'poor';
+  estimatedValue: number;
+  note?: string;
+};

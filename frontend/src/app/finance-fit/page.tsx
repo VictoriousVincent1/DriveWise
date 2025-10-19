@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AffordabilityCalculator from '@/components/finance-fit/AffordabilityCalculator';
-import PaymentSimulator from '@/components/finance-fit/PaymentSimulator';
-import { calculateAffordability } from '@/lib/mockData/banking';
-import { AffordabilityTier, BankingData } from '@/types';
+import AffordabilityCalculator from '../../components/finance-fit/AffordabilityCalculator';
+import PaymentSimulator from '../../components/finance-fit/PaymentSimulator';
+import { calculateAffordability } from '../../lib/mockData/banking';
+import type { AffordabilityTier, BankingData } from '../../types';
 
 export default function FinanceFitPage() {
   const [loading, setLoading] = useState(true);

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ChatMessage } from '@/types';
-import { formatCurrency } from '@/lib/utils';
+import type { ChatMessage } from '../../types';
+import { formatCurrency } from '../../lib/utils';
 
 export default function DealerChatbot() {
   const [messages, setMessages] = useState<ChatMessage[]>([

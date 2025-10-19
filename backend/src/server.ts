@@ -5,11 +5,14 @@ import vehicleRoutes from './api/vehicles';
 import financeRoutes from './api/finance';
 import dealerRoutes from './api/dealers';
 import tradeInRoutes from './api/trade-in';
+import { getCustomers, createCustomer } from './api/nessie';
+import { getAccounts, createAccount } from './api/nessie';
+import { getTransactions } from './api/nessie';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors({
@@ -30,7 +33,7 @@ app.get('/health', (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-  service: 'DriveWise Backend API'
+    service: 'DriveWise Backend API'
   });
 });
 
@@ -39,6 +42,57 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/dealers', dealerRoutes);
 app.use('/api/trade-in', tradeInRoutes);
+
+// Nessie API Routes
+app.get('/api/nessie/customers', async (req: Request, res: Response) => {
+  try {
+    const customers = await getCustomers();
+    res.json(customers);
+  } catch (error: any) {
+    console.error('Nessie API Error:', error);
+    res.status(500).json({ error: 'Failed to fetch customers', message: error.message });
+  }
+});
+
+app.post('/api/nessie/customers', async (req: Request, res: Response) => {
+  try {
+    const customer = await createCustomer(req.body);
+    res.json(customer);
+  } catch (error: any) {
+    console.error('Nessie API Error:', error);
+    res.status(500).json({ error: 'Failed to create customer', message: error.message });
+  }
+});
+
+app.get('/api/nessie/customers/:customerId/accounts', async (req: Request, res: Response) => {
+  try {
+    const accounts = await getAccounts(req.params.customerId);
+    res.json(accounts);
+  } catch (error: any) {
+    console.error('Nessie API Error:', error);
+    res.status(500).json({ error: 'Failed to fetch accounts', message: error.message });
+  }
+});
+
+app.post('/api/nessie/customers/:customerId/accounts', async (req: Request, res: Response) => {
+  try {
+    const account = await createAccount(req.params.customerId, req.body);
+    res.json(account);
+  } catch (error: any) {
+    console.error('Nessie API Error:', error);
+    res.status(500).json({ error: 'Failed to create account', message: error.message });
+  }
+});
+
+app.get('/api/nessie/accounts/:accountId/transactions', async (req: Request, res: Response) => {
+  try {
+    const transactions = await getTransactions(req.params.accountId);
+    res.json(transactions);
+  } catch (error: any) {
+    console.error('Nessie API Error:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions', message: error.message });
+  }
+});
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -59,7 +113,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`� DriveWise Backend API running on port ${PORT}`);
+  console.log(`🚗 DriveWise Backend API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
 });

@@ -1,7 +1,7 @@
 'use client';
 
-import { Dealer, Vehicle, FinancingOption } from '@/types';
-import { formatCurrency } from '@/lib/utils';
+import type { Dealer, Vehicle, FinancingOption } from '../../types';
+import { formatCurrency } from '../../lib/utils';
 
 interface VehicleComparisonProps {
   vehicles: Vehicle[];

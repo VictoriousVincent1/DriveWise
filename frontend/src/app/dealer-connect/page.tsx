@@ -1,11 +1,41 @@
 'use client';
 
 import { useState } from 'react';
-import DealerChatbot from '@/components/dealer-connect/DealerChatbot';
-import VehicleComparison from '@/components/dealer-connect/VehicleComparison';
-import DealerList from '@/components/dealer-connect/DealerList';
-import { mockVehicles } from '@/lib/mockData/vehicles';
-import { mockDealers } from '@/lib/mockData/dealers';
+import DealerChatbot from '../../components/dealer-connect/DealerChatbot';
+import VehicleComparison from '../../components/dealer-connect/VehicleComparison';
+import DealerList from '../../components/dealer-connect/DealerList';
+import SavedCars from '../../components/dealer-connect/SavedCars';
+import CarQuiz from '../../components/dealer-connect/CarQuiz';
+// TODO: Replace with backend API calls
+import { mockSavedCars as mockVehicles } from '../../components/dealer-connect/SavedCars';
+const mockDealers = [
+  {
+    id: 'dealer-1',
+    name: 'Downtown Toyota',
+    address: '123 Main St',
+    city: 'Anytown',
+    state: 'CA',
+    zipCode: '90210',
+    phone: '(555) 123-4567',
+    rating: 4.7,
+    distance: 3.2,
+    inventory: mockVehicles.map(v => v.id),
+    specialOffers: ['0.9% APR for 36 mo', 'Free maintenance for 2 years'],
+  },
+  {
+    id: 'dealer-2',
+    name: 'Valley Toyota',
+    address: '456 Elm Rd',
+    city: 'Anytown',
+    state: 'CA',
+    zipCode: '90211',
+    phone: '(555) 987-6543',
+    rating: 4.5,
+    distance: 7.8,
+    inventory: mockVehicles.map(v => v.id),
+    specialOffers: ['$500 loyalty bonus'],
+  },
+];
 
 export default function DealerConnectPage() {
   const [mode, setMode] = useState<'chat' | 'visual'>('visual');
@@ -53,8 +83,17 @@ export default function DealerConnectPage() {
           <DealerChatbot />
         ) : (
           <>
-            <VehicleComparison vehicles={comparisonVehicles} dealers={nearbyDealers} />
-            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                {/* Saved Cars Segment */}
+                <SavedCars />
+              </div>
+              <div>
+                {/* Car Quiz Segment */}
+                <CarQuiz />
+              </div>
+            </div>
+
             <div>
               <h2 className="text-2xl font-bold mb-6">Nearby Toyota Dealers</h2>
               <DealerList dealers={nearbyDealers} />

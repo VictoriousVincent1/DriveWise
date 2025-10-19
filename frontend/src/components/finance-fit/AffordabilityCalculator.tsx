@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { AffordabilityTier } from '@/types';
-import { formatCurrency, formatPercent } from '@/lib/utils';
+import type { AffordabilityTier } from '../../types';
+import { formatCurrency, formatPercent } from '../../lib/utils';
 
 interface AffordabilityCalculatorProps {
   tiers: AffordabilityTier[];
