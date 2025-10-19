@@ -26,15 +26,18 @@ export default function DealerEmployeeDashboard() {
         setLoading(false);
         return;
       }
-      // Fetch appointments
+      // Fetch appointments assigned to this dealer
       const apptSnap = await getDocs(collection(db, "appointments"));
       const appts = [];
       for (const appt of apptSnap.docs) {
         const data = appt.data();
+        if (data.dealerId !== u.uid) continue;
         // Fetch user info for each appointment
         const userInfo = data.userId ? (await getDoc(doc(db, "users", data.userId))).data() : null;
         appts.push({ ...data, id: appt.id, userInfo });
       }
+      // sort by date/time ascending
+      appts.sort((a: any, b: any) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime());
       setAppointments(appts);
       setLoading(false);
     });

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { getFinancialProfile } from "@/lib/api";
 
 interface FinancialProfile {
@@ -19,6 +19,7 @@ export default function UserOverviewPage() {
   const [profile, setProfile] = useState<any>(null);
   const [financialProfile, setFinancialProfile] = useState<FinancialProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [appointments, setAppointments] = useState<any[]>([]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -41,6 +42,20 @@ export default function UserOverviewPage() {
         } catch (error) {
           console.error("Failed to load financial profile:", error);
         }
+      }
+
+      // Load user's appointments
+      try {
+        const q = query(collection(db, "appointments"), where("userId", "==", u.uid));
+        const snap2 = await getDocs(q);
+        const list = snap2.docs.map((d) => ({ id: d.id, ...d.data() }));
+        list.sort(
+          (a: any, b: any) =>
+            new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime()
+        );
+        setAppointments(list);
+      } catch (e) {
+        console.error("Failed to load appointments", e);
       }
       
       setLoading(false);
@@ -182,6 +197,26 @@ export default function UserOverviewPage() {
             <p className="text-sm text-gray-600">Get your car's worth</p>
           </a>
         </div>
+      </div>
+
+      {/* Appointments */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Your Appointments</h2>
+          <a href="/appointments" className="text-blue-600 underline">Book appointment</a>
+        </div>
+        {appointments.length === 0 ? (
+          <div className="text-gray-600">No appointments yet.</div>
+        ) : (
+          <ul className="space-y-2">
+            {appointments.map((a) => (
+              <li key={a.id} className="p-3 border rounded bg-gray-50">
+                <div className="font-medium">{a.date} at {a.time}</div>
+                <div className="text-xs text-gray-600">Status: {a.status || "requested"}</div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Recent Activity */}
