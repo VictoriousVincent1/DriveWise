@@ -94,6 +94,28 @@ app.get('/api/nessie/accounts/:accountId/transactions', async (req: Request, res
   }
 });
 
+// Financial Profile endpoint
+app.get('/api/nessie/customers/:customerId/financial-profile', async (req: Request, res: Response) => {
+  try {
+    const { generateFinancialProfile } = await import('./api/nessie');
+    
+    const customers = await getCustomers();
+    const customer = customers.find((c: any) => c._id === req.params.customerId);
+    
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    
+    const accounts = await getAccounts(req.params.customerId);
+    const profile = generateFinancialProfile(customer, accounts);
+    
+    res.json(profile);
+  } catch (error: any) {
+    console.error('Financial Profile Error:', error);
+    res.status(500).json({ error: 'Failed to generate financial profile', message: error.message });
+  }
+});
+
 // 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({
