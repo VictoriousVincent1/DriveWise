@@ -1,0 +1,34 @@
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { auth } from "../lib/firebase";
+
+export default function AuthNav() {
+  const [user, setUser] = useState<any>(null);
+  useEffect(() => {
+    const unsub = auth.onAuthStateChanged(setUser);
+    return () => unsub();
+  }, []);
+  if (user) {
+    return (
+      <div className="flex items-center space-x-4">
+        <Link href="/profile" className="text-gray-700 hover:text-blue-600 font-medium flex items-center">
+          <span className="inline-block w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold mr-2">
+            {user.displayName ? user.displayName[0] : user.email[0]}
+          </span>
+          Profile
+        </Link>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center space-x-4">
+      <Link href="/auth/login" className="text-gray-700 hover:text-blue-600 font-medium">
+        Sign In
+      </Link>
+      <Link href="/auth/signup" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+        Get Started
+      </Link>
+    </div>
+  );
+}

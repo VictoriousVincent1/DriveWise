@@ -37,6 +37,7 @@ export default function RootLayout({
                 <span className="text-xl font-bold text-gray-900">ToyotaPath</span>
               </Link>
               
+
               <div className="hidden md:flex space-x-8">
                 <Link href="/finance-fit" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                   Finance Fit
@@ -47,19 +48,13 @@ export default function RootLayout({
                 <Link href="/trade-in" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                   Trade-In
                 </Link>
-                <Link href="/ownership" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-                  Ownership
-                </Link>
               </div>
 
-              <div className="flex items-center space-x-4">
-                <Link href="/auth/login" className="text-gray-700 hover:text-blue-600 font-medium">
-                  Sign In
-                </Link>
-                <Link href="/auth/signup" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                  Get Started
-                </Link>
-              </div>
+              <AuthNav />
+// --- Add this at the top ---
+
+import AuthNav from "../components/AuthNav";
+
             </div>
           </div>
         </nav>
@@ -81,7 +76,7 @@ export default function RootLayout({
                   <li><Link href="/finance-fit" className="hover:text-white">Finance Fit</Link></li>
                   <li><Link href="/dealer-connect" className="hover:text-white">Dealer Connect</Link></li>
                   <li><Link href="/trade-in" className="hover:text-white">Smart Trade-In</Link></li>
-                  <li><Link href="/ownership" className="hover:text-white">Ownership Companion</Link></li>
+                  {/* <li><Link href="/ownership" className="hover:text-white">Ownership Companion</Link></li> */}
                 </ul>
               </div>
               <div>
