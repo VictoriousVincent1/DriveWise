@@ -14,24 +14,48 @@ export type BankingData = {
   averageMonthlyExpenses: number;
 };
 
+// Dealer Connect shared types
+export type VehicleCategory =
+  | 'sedan'
+  | 'suv'
+  | 'truck'
+  | 'hybrid'
+  | 'electric'
+  | 'sports'
+  | 'minivan'
+  | 'crossover';
+
 export interface Vehicle {
-  id: number;
+  id: number | string;
   make: string;
   model: string;
   year: number;
-  price: number;
-  mileage: number;
+  trim: string;
+  price?: number;
+  msrp: number;
+  mileage?: number;
   image: string;
   description?: string;
+  features: string[];
+  fuelEconomy: { city: number; highway: number };
+  category: VehicleCategory;
 }
 
 export interface Dealer {
-  id: number;
+  id: number | string;
   name: string;
   location: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
   phone: string;
   email: string;
-  inventory: Vehicle[];
+  rating: number;
+  distance: number;
+  certified?: boolean;
+  specialOffers?: string[];
+  inventory: Vehicle[] | string[];
 }
 
 export interface FinanceOption {
@@ -42,12 +66,21 @@ export interface FinanceOption {
   minDownPayment: number;
 }
 
-export interface ChatMessage {
+export type FinancingOption = {
+  type: 'lease' | 'loan';
+  apr?: number;
+  monthlyPayment: number;
+  termMonths: number;
+  downPayment?: number;
+};
+
+export type ChatMessage = {
   id: string;
-  sender: "user" | "bot";
-  message: string;
-  timestamp: string;
-}
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: number | Date;
+  suggestions?: string[];
+};
 
 export interface MaintenanceRecord {
   id: number;
