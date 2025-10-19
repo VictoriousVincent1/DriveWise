@@ -74,7 +74,36 @@ export default function UserOverviewPage() {
           setLoadingRecs(true);
           const recsData = await getRecommendations(profileData.nessieCustomerId);
           const recs = recsData.recommendations || [];
-          setRecommendations(recs);
+          
+          // Map backend vehicle images to frontend images
+          const mappedRecs = recs.map((rec: Recommendation) => {
+            const model = rec.vehicle.model.toLowerCase().replace(/ /g, '-');
+            let imagePath = `/${model}.jpg`;
+            
+            // Handle special cases
+            if (model.includes('camry') && model.includes('hybrid')) {
+              imagePath = '/camry-hybrid.jpg';
+            } else if (model.includes('rav4') && model.includes('prime')) {
+              imagePath = '/rav4-prime.jpg';
+            } else if (model === 'corolla' || model.includes('corolla')) {
+              imagePath = '/corolla.jpeg';
+            } else if (model === 'prius' || model.includes('prius')) {
+              imagePath = '/prius.jpeg';
+            }
+            
+            console.log('Mapping vehicle:', rec.vehicle.model, 'to image:', imagePath);
+            
+            return {
+              ...rec,
+              vehicle: {
+                ...rec.vehicle,
+                image: imagePath
+              }
+            };
+          });
+          
+          console.log('Mapped recommendations:', mappedRecs);
+          setRecommendations(mappedRecs);
           
           // ✅ SAVE TO FIREBASE
           await updateDoc(userDocRef, {
@@ -240,10 +269,22 @@ export default function UserOverviewPage() {
                       </div>
                     </div>
 
-                    {/* Vehicle Info */}
+                    {/* Vehicle Info + Image */}
                     <div className="flex-1">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
+                      <div className="flex flex-col md:flex-row justify-between items-start mb-2 gap-4">
+                        <div className="flex-shrink-0 w-48 h-32 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center">
+                          <img
+                            src={rec.vehicle.image}
+                            alt={`${rec.vehicle.year} ${rec.vehicle.make} ${rec.vehicle.model}`}
+                            className="object-cover w-48 h-32"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              console.error('Failed to load image:', target.src);
+                              target.src = '/corolla.jpeg';
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1">
                           <h3 className="text-xl font-bold text-gray-900">
                             {rec.vehicle.year} {rec.vehicle.make} {rec.vehicle.model}
                           </h3>
@@ -319,13 +360,16 @@ export default function UserOverviewPage() {
 
                       {/* CTA */}
                       <div className="mt-4 flex gap-3">
-                        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors">
+                        <a
+                          href={`/dealer-connect/vehicle/${rec.vehicle.id}`}
+                          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                        >
                           View Details
-                        </button>
+                        </a>
                         <button className="px-6 py-2 bg-white border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 font-medium transition-colors">
                           Compare
                         </button>
-                                      <div className="mb-6">{pdfButton}</div>
+                        {/* Removed pdfButton */}
                       </div>
                     </div>
                   </div>

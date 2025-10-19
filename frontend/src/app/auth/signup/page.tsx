@@ -152,7 +152,16 @@ export default function SignupPage() {
   router.push(role === 'dealer' ? "/dealer-employee" : "/user");
     } catch (err: any) {
       console.error("Signup error:", err);
-      setError(err.message);
+      // Provide user-friendly error messages
+      if (err.code === 'auth/email-already-in-use') {
+        setError("This email is already registered. Please login instead or use a different email.");
+      } else if (err.code === 'auth/weak-password') {
+        setError("Password should be at least 6 characters.");
+      } else if (err.code === 'auth/invalid-email') {
+        setError("Invalid email address.");
+      } else {
+        setError(err.message || "An error occurred during signup. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

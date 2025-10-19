@@ -74,7 +74,7 @@ export default function DealerConnectPage() {
           <div>
             <h1 className="text-4xl font-bold mb-4">🤝 Dealer Connect</h1>
             <p className="text-lg text-gray-600">
-              Find your perfect Toyota and connect with trusted dealers — your way.
+              Find your perfect Toyota and connect with trusted dealers your way.
             </p>
           </div>
           <div className="flex gap-2">

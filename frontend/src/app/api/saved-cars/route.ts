@@ -8,8 +8,8 @@ export async function GET(_req: NextRequest) {
     ...v,
     // Ensure the UI has an MSRP field; fall back to price
     msrp: v.msrp ?? v.price,
-    // Use a known-present placeholder image to avoid 404s
-    image: '/vercel.svg',
+    // Keep the actual vehicle image from mock data
+    image: v.image,
   }));
 
   return Response.json({ cars });

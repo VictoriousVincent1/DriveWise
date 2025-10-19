@@ -9,7 +9,7 @@ export const mockVehicles: Vehicle[] = [
     year: 2024,
     price: 28500,
     mileage: 0,
-    image: '/placeholder-corolla.jpg',
+    image: '/corolla.jpeg',
     description: 'XSE trim, 31 city / 40 hwy mpg, Apple CarPlay, Adaptive Cruise Control, Lane Departure Warning, Heated Front Seats, Moonroof',
   },
   {
@@ -19,7 +19,7 @@ export const mockVehicles: Vehicle[] = [
     year: 2024,
     price: 32400,
     mileage: 0,
-    image: '/placeholder-camry.jpg',
+    image: '/camry.jpg',
     description: 'SE trim, 28 city / 39 hwy mpg, Toyota Safety Sense 3.0, Wireless Phone Charging, Power Driver Seat, LED Headlights, Sport Suspension',
   },
   {
@@ -29,7 +29,7 @@ export const mockVehicles: Vehicle[] = [
     year: 2024,
     price: 36800,
     mileage: 0,
-    image: '/placeholder-rav4.jpg',
+    image: '/rav4.jpg',
     description: 'XLE trim, 27 city / 35 hwy mpg, All-Wheel Drive, Power Liftgate, Blind Spot Monitor, SofTex Seats, 8-inch Touchscreen',
   },
   {
@@ -39,7 +39,7 @@ export const mockVehicles: Vehicle[] = [
     year: 2024,
     price: 42500,
     mileage: 0,
-    image: '/placeholder-highlander.jpg',
+    image: '/highlander.jpg',
     description: 'LE trim, 21 city / 29 hwy mpg, 3-Row Seating, Toyota Safety Sense 2.5+, Roof Rails, Tri-Zone Climate Control, 12.3-inch Touchscreen',
   },
   {
@@ -49,7 +49,7 @@ export const mockVehicles: Vehicle[] = [
     year: 2024,
     price: 33200,
     mileage: 0,
-    image: '/placeholder-prius.jpg',
+    image: '/prius.jpeg',
     description: 'XLE trim, 57 city / 56 hwy mpg, Hybrid Technology, Panoramic Glass Roof, Heated Steering Wheel, 10-Speaker JBL Audio, Digital Rearview Mirror',
   },
   {
@@ -59,7 +59,7 @@ export const mockVehicles: Vehicle[] = [
     year: 2024,
     price: 38900,
     mileage: 0,
-    image: '/placeholder-tacoma.jpg',
+    image: '/tacoma.jpg',
     description: 'SR5 trim, 19 city / 24 hwy mpg, 4x4 Off-Road Package, Double Cab, Tow Package, Bed Liner, Multi-Terrain Select',
   },
   {
@@ -69,7 +69,7 @@ export const mockVehicles: Vehicle[] = [
     year: 2024,
     price: 30500,
     mileage: 0,
-    image: '/placeholder-camry-hybrid.jpg',
+    image: '/camry-hybrid.jpg',
     description: 'LE trim, 51 city / 53 hwy mpg, Hybrid Synergy Drive, Eco & Sport Drive Modes, Smart Key System, 7-inch Display, Rear Camera',
   },
   {
@@ -79,7 +79,7 @@ export const mockVehicles: Vehicle[] = [
     year: 2024,
     price: 45200,
     mileage: 0,
-    image: '/placeholder-rav4-prime.jpg',
+    image: '/rav4-prime.jpg',
     description: 'SE trim, 94 MPGe combined, Plug-In Hybrid, 42 miles electric range, 302 HP combined, Sport-Tuned Suspension, 9-inch Touchscreen',
   },
 ];
@@ -121,11 +121,7 @@ export function getVehicleById(id: number): Vehicle | undefined {
 
 export function getVehiclesByPriceRange(minPrice: number, maxPrice: number): Vehicle[] {
   return mockVehicles.filter(
-<<<<<<< HEAD
-    vehicle => (vehicle.price ?? 0) >= minPrice && (vehicle.price ?? 0) <= maxPrice
-=======
-    vehicle => typeof vehicle.price === 'number' && vehicle.price >= minPrice && vehicle.price <= maxPrice
->>>>>>> fea63a6a403c7c830044ac8342b1be100e759891
+  vehicle => typeof vehicle.price === 'number' && vehicle.price >= minPrice && vehicle.price <= maxPrice
   );
 }
 
