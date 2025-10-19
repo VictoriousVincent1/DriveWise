@@ -3,6 +3,7 @@ import AuthNav from "../components/AuthNav";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import GeminiChatbot from '../components/GeminiChatbot';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,6 +60,11 @@ export default function RootLayout({
         </nav>
 
         <main>{children}</main>
+
+        {/* Gemini Chatbot floating bottom right */}
+        <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000 }}>
+          <GeminiChatbot />
+        </div>
 
         <footer className="bg-gray-900 text-white mt-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
