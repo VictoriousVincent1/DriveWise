@@ -6,68 +6,57 @@ export type AffordabilityTier = {
   downPayment: number;
   maxLoanAmount: number;
   recommendedAction: string;
-  reasoning: string;
 };
 
-export type BankingData = {
-  averageMonthlyIncome: number;
-  averageMonthlyExpenses: number;
-};
-
-// Dealer Connect shared types
-export type VehicleCategory =
-  | 'sedan'
-  | 'suv'
-  | 'truck'
-  | 'hybrid'
-  | 'electric'
-  | 'sports'
-  | 'minivan'
-  | 'crossover';
-
-export type Vehicle = {
-  id: string;
+export interface Vehicle {
+  id: number;
   make: string;
   model: string;
   year: number;
-  trim: string;
-  msrp: number;
+  price: number;
+  mileage: number;
   image: string;
-  features: string[];
-  fuelEconomy: { city: number; highway: number };
-  category: VehicleCategory;
-};
+  description?: string;
+}
 
-export type Dealer = {
-  id: string;
+export interface Dealer {
+  id: number;
   name: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  location: string;
   phone: string;
-  rating: number;
-  distance: number;
-  certified?: boolean;
-  specialOffers?: string[];
-  inventory: string[]; // vehicle ids or SKUs
-};
+  email: string;
+  inventory: Vehicle[];
+}
 
-export type FinancingOption = {
-  type: 'lease' | 'loan';
-  apr?: number;
-  monthlyPayment: number;
+export interface FinanceOption {
+  id: number;
+  name: string;
+  interestRate: number;
   termMonths: number;
-  downPayment?: number;
-};
+  minDownPayment: number;
+}
 
-export type ChatMessage = {
+export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: number | Date;
-  suggestions?: string[];
-};
+  sender: "user" | "bot";
+  message: string;
+  timestamp: string;
+}
+
+export interface TradeInEstimate {
+  vehicleId: number;
+  estimatedValue: number;
+  offerExpires: string;
+}
+
+export interface MaintenanceRecord {
+  id: number;
+  vehicleId: number;
+  service: string;
+  date: string;
+  cost: number;
+  notes?: string;
+}
 
 export type ServiceReminder = {
   id: string;

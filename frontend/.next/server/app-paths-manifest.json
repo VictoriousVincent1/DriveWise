@@ -1,7 +1,0 @@
-{
-  "/auth/login/page": "app/auth/login/page.js",
-  "/finance-fit/page": "app/finance-fit/page.js",
-  "/page": "app/page.js",
-  "/profile/page": "app/profile/page.js",
-  "/user/page": "app/user/page.js"
-}
