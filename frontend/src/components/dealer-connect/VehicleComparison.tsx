@@ -1,6 +1,6 @@
 'use client';
 
-import type { Dealer, Vehicle, FinancingOption } from '../../types';
+import type { Dealer, Vehicle, FinanceOption } from '../../types';
 import { formatCurrency } from '../../lib/utils';
 
 interface VehicleComparisonProps {
@@ -57,7 +57,7 @@ export default function VehicleComparison({ vehicles, dealers }: VehicleComparis
               {vehicles.map((vehicle) => (
                 <td key={vehicle.id} className="p-4 text-center">
                   <span className="text-xl font-bold text-blue-600">
-                    {formatCurrency(vehicle.msrp)}
+                    {formatCurrency(vehicle.msrp ?? 0)}
                   </span>
                 </td>
               ))}
@@ -109,7 +109,7 @@ export default function VehicleComparison({ vehicles, dealers }: VehicleComparis
                   {vehicle.category === 'electric' ? (
                     <span>252 mi range</span>
                   ) : (
-                    <span>{vehicle.fuelEconomy.city}/{vehicle.fuelEconomy.highway} mpg</span>
+                    <span>{vehicle.fuelEconomy?.city ?? '-'} / {vehicle.fuelEconomy?.highway ?? '-'} mpg</span>
                   )}
                 </td>
               ))}
@@ -120,7 +120,7 @@ export default function VehicleComparison({ vehicles, dealers }: VehicleComparis
               {vehicles.map((vehicle) => (
                 <td key={vehicle.id} className="p-4">
                   <ul className="text-sm space-y-1">
-                    {vehicle.features.slice(0, 4).map((feature, idx) => (
+                    {(vehicle.features ?? []).slice(0, 4).map((feature: string, idx: number) => (
                       <li key={idx} className="flex items-center justify-center">
                         <span className="text-green-500 mr-1">✓</span>
                         {feature}

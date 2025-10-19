@@ -11,6 +11,12 @@ const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
 const client = twilio(accountSid, authToken);
 
 export async function POST(request: NextRequest) {
+    if (!twilioNumber) {
+      return NextResponse.json(
+        { error: 'Twilio phone number is not configured on the server.' },
+        { status: 500 }
+      );
+    }
   try {
     const { phoneNumber, userName, context } = await request.json();
 

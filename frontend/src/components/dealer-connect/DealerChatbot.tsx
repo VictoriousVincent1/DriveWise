@@ -10,7 +10,7 @@ export default function DealerChatbot() {
       id: '1',
       role: 'assistant',
       content: "Hi! I'm your ToyotaPath assistant. I can help you explore financing options, compare vehicles, or connect you with local dealers. What would you like to do today?",
-      timestamp: new Date(),
+  timestamp: new Date().toISOString(),
       suggestions: [
         'Find affordable vehicles',
         'Compare lease vs buy',
@@ -30,7 +30,7 @@ export default function DealerChatbot() {
       id: Date.now().toString(),
       role: 'user',
       content,
-      timestamp: new Date(),
+  timestamp: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
@@ -60,7 +60,7 @@ export default function DealerChatbot() {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: responseContent,
-        timestamp: new Date(),
+  timestamp: new Date().toISOString(),
         suggestions: ['Show me vehicles', 'Connect with dealer', 'Calculate payments', 'Switch to visual mode'],
       };
 

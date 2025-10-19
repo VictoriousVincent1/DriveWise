@@ -10,38 +10,62 @@ import CarQuiz from '../../components/dealer-connect/CarQuiz';
 import { mockSavedCars as mockVehicles } from '../../components/dealer-connect/SavedCars';
 const mockDealers = [
   {
-    id: 'dealer-1',
+    id: 1,
     name: 'Downtown Toyota',
     address: '123 Main St',
     city: 'Anytown',
     state: 'CA',
     zipCode: '90210',
     phone: '(555) 123-4567',
+    email: 'contact@downtowntoyota.com',
+  location: '34.0522,-118.2437',
     rating: 4.7,
     distance: 3.2,
-    inventory: mockVehicles.map(v => v.id),
+  inventory: mockVehicles,
     specialOffers: ['0.9% APR for 36 mo', 'Free maintenance for 2 years'],
   },
   {
-    id: 'dealer-2',
+    id: 2,
     name: 'Valley Toyota',
     address: '456 Elm Rd',
     city: 'Anytown',
     state: 'CA',
     zipCode: '90211',
     phone: '(555) 987-6543',
+    email: 'info@valleytoyota.com',
+  location: '34.1015,-118.3265',
     rating: 4.5,
     distance: 7.8,
-    inventory: mockVehicles.map(v => v.id),
+  inventory: mockVehicles,
     specialOffers: ['$500 loyalty bonus'],
   },
 ];
 
 export default function DealerConnectPage() {
   const [mode, setMode] = useState<'chat' | 'visual'>('visual');
+  const [phoneNumber, setPhoneNumber] = useState('');
   
   const comparisonVehicles = mockVehicles.slice(0, 3);
   const nearbyDealers = mockDealers;
+
+  // Function to initiate the Twilio call
+  const initiateCall = async () => {
+    if (!phoneNumber) {
+      alert('Please enter your phone number.');
+      return;
+    }
+    try {
+      const response = await fetch('/api/voice-call/initiate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber }),
+      });
+      if (!response.ok) throw new Error('Call initiation failed');
+      alert('Call initiated!');
+    } catch (err) {
+      alert('Failed to initiate call.');
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -76,6 +100,28 @@ export default function DealerConnectPage() {
             </button>
           </div>
         </div>
+      </div>
+
+
+      {/* Phone Number Input and Call Dealer Button */}
+      <div className="mb-6 flex flex-col md:flex-row items-end gap-4 justify-end">
+        <div>
+          <label htmlFor="phone-input" className="block text-sm font-medium text-gray-700 mb-1">Your Phone Number</label>
+          <input
+            id="phone-input"
+            type="tel"
+            value={phoneNumber}
+            onChange={e => setPhoneNumber(e.target.value)}
+            placeholder="e.g. +15551234567"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          onClick={initiateCall}
+          className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700 transition-colors"
+        >
+          📞 Call Dealer
+        </button>
       </div>
 
       <div className="space-y-8">

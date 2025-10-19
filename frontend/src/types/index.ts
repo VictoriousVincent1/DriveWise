@@ -30,15 +30,15 @@ export interface Vehicle {
   make: string;
   model: string;
   year: number;
-  trim: string;
+  trim?: string;
   price?: number;
-  msrp: number;
+  msrp?: number;
   mileage?: number;
   image: string;
   description?: string;
-  features: string[];
-  fuelEconomy: { city: number; highway: number };
-  category: VehicleCategory;
+  features?: string[];
+  fuelEconomy?: { city: number; highway: number };
+  category?: VehicleCategory | string;
 }
 
 export interface Dealer {
@@ -74,13 +74,15 @@ export type FinancingOption = {
   downPayment?: number;
 };
 
-export type ChatMessage = {
+export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  timestamp: number | Date;
+  timestamp: string | number | Date;
   suggestions?: string[];
-};
+  sender?: "user" | "bot";
+  message?: string;
+}
 
 export interface MaintenanceRecord {
   id: number;
