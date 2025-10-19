@@ -32,10 +32,10 @@ export const mockSavedCars: Vehicle[] = [
 ];
 
 export default function SavedCars() {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<(string | number)[]>([]);
   const [showCompare, setShowCompare] = useState(false);
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = (id: string | number) => {
     setSelected(sel => sel.includes(id) ? sel.filter(x => x !== id) : [...sel, id]);
   };
 

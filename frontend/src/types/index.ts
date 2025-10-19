@@ -6,26 +6,56 @@ export type AffordabilityTier = {
   downPayment: number;
   maxLoanAmount: number;
   recommendedAction: string;
+  reasoning: string;
 };
 
+export type BankingData = {
+  averageMonthlyIncome: number;
+  averageMonthlyExpenses: number;
+};
+
+// Dealer Connect shared types
+export type VehicleCategory =
+  | 'sedan'
+  | 'suv'
+  | 'truck'
+  | 'hybrid'
+  | 'electric'
+  | 'sports'
+  | 'minivan'
+  | 'crossover';
+
 export interface Vehicle {
-  id: number;
+  id: number | string;
   make: string;
   model: string;
   year: number;
-  price: number;
-  mileage: number;
+  trim: string;
+  price?: number;
+  msrp: number;
+  mileage?: number;
   image: string;
   description?: string;
+  features: string[];
+  fuelEconomy: { city: number; highway: number };
+  category: VehicleCategory;
 }
 
 export interface Dealer {
-  id: number;
+  id: number | string;
   name: string;
   location: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
   phone: string;
   email: string;
-  inventory: Vehicle[];
+  rating: number;
+  distance: number;
+  certified?: boolean;
+  specialOffers?: string[];
+  inventory: Vehicle[] | string[];
 }
 
 export interface FinanceOption {
@@ -36,18 +66,21 @@ export interface FinanceOption {
   minDownPayment: number;
 }
 
-export interface ChatMessage {
-  id: string;
-  sender: "user" | "bot";
-  message: string;
-  timestamp: string;
-}
+export type FinancingOption = {
+  type: 'lease' | 'loan';
+  apr?: number;
+  monthlyPayment: number;
+  termMonths: number;
+  downPayment?: number;
+};
 
-export interface TradeInEstimate {
-  vehicleId: number;
-  estimatedValue: number;
-  offerExpires: string;
-}
+export type ChatMessage = {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: number | Date;
+  suggestions?: string[];
+};
 
 export interface MaintenanceRecord {
   id: number;
@@ -66,11 +99,21 @@ export type ServiceReminder = {
   completed?: boolean;
 };
 
-export type TradeInEstimateDetails = {
+export type TradeInEstimate = {
+  vin?: string;
   make: string;
   model: string;
   year: number;
+  mileage: number;
   condition: 'excellent' | 'good' | 'fair' | 'poor';
   estimatedValue: number;
+  tradeInValue?: number;
+  privatePartyValue?: number;
+  recommendation?: 'trade-in' | 'sell-private';
+  reasoning?: string;
+  impactOnNewPurchase?: {
+    reducedDownPayment: number;
+    reducedMonthlyPayment: number;
+  };
   note?: string;
 };

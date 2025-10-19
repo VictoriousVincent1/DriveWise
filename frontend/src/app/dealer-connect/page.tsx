@@ -96,7 +96,7 @@ export default function DealerConnectPage() {
 
             <div>
               <h2 className="text-2xl font-bold mb-6">Nearby Toyota Dealers</h2>
-              <DealerList dealers={nearbyDealers} />
+              <DealerList dealers={nearbyDealers as any} />
             </div>
           </>
         )}

@@ -86,7 +86,7 @@ export default function CarQuiz() {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [results, setResults] = useState<Vehicle[]>([]);
-  const [compareSelection, setCompareSelection] = useState<string[]>([]);
+  const [compareSelection, setCompareSelection] = useState<(string | number)[]>([]);
 
   const current = quiz[index];
   const progress = `${index + 1} / ${quiz.length}`;
@@ -141,7 +141,7 @@ export default function CarQuiz() {
     setResults(filtered);
   };
 
-  const toggleCompare = (id: string) => {
+  const toggleCompare = (id: string | number) => {
     setCompareSelection((prev) => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
   };
 

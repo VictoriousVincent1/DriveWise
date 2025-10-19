@@ -1,9 +1,9 @@
-# 🎨 ToyotaPath Frontend
+# 🎨 Drive Wise Frontend
 
 ## Next.js 15 + React 19 + TypeScript + Tailwind CSS
 
 ### Overview
-The frontend application for ToyotaPath, built for the Toyota Financial Services hackathon. Features a modern, responsive UI with real-time financial calculations and vehicle comparisons.
+The frontend application for Drive Wise, built for the Toyota Financial Services hackathon. Features a modern, responsive UI with real-time financial calculations and vehicle comparisons.
 
 ---
 
@@ -189,4 +189,4 @@ Optimized with Next.js image optimization and code splitting.
 
 ---
 
-*Part of ToyotaPath - Toyota Financial Services Hackathon*
+*Part of Drive Wise - Toyota Financial Services Hackathon*
