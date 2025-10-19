@@ -33,8 +33,12 @@ export default function DealerEmployeeDashboard() {
         const data = appt.data();
         if (data.dealerId !== u.uid) continue;
         // Fetch user info for each appointment
-        const userInfo = data.userId ? (await getDoc(doc(db, "users", data.userId))).data() : null;
-        appts.push({ ...data, id: appt.id, userInfo });
+  const userDoc = data.userId ? await getDoc(doc(db, "users", data.userId)) : null;
+  const userInfo = data.userSummary || userDoc?.data() || null;
+  // Prefer embedded snapshots on appointment
+  const financial = data.financialSnapshot || userDoc?.data()?.financialProfile || null;
+  const savedCars = Array.isArray(data.savedCars) ? data.savedCars : (userDoc?.data()?.savedCars || []);
+        appts.push({ ...data, id: appt.id, userInfo, financial, savedCars });
       }
       // sort by date/time ascending
       appts.sort((a: any, b: any) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime());
@@ -96,6 +100,48 @@ export default function DealerEmployeeDashboard() {
                   <div className="font-semibold">{appt.userInfo?.zipcode || '—'}</div>
                 </div>
               </div>
+              {/* Client comment */}
+              {appt.comments && (
+                <div className="mt-3 bg-white rounded p-3 border">
+                  <div className="text-xs text-gray-600">Client Comment</div>
+                  <div className="font-medium whitespace-pre-line">{appt.comments}</div>
+                </div>
+              )}
+              {/* Financial snapshot */}
+              {appt.financial && (
+                <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 bg-white rounded p-3 border">
+                  <div>
+                    <div className="text-xs text-gray-600">Credit Score</div>
+                    <div className="font-semibold">{appt.financial.creditScore}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600">Monthly Income</div>
+                    <div className="font-semibold">${appt.financial.monthlyIncome?.toLocaleString?.() || appt.financial.monthlyIncome}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600">DTI</div>
+                    <div className="font-semibold">{typeof appt.financial.debtToIncomeRatio === 'number' ? (appt.financial.debtToIncomeRatio * 100).toFixed(1) + '%' : '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600">Max Loan</div>
+                    <div className="font-semibold">${appt.financial.maxLoanAmount?.toLocaleString?.() || appt.financial.maxLoanAmount}</div>
+                  </div>
+                </div>
+              )}
+              {/* Saved cars */}
+              {Array.isArray(appt.savedCars) && appt.savedCars.length > 0 && (
+                <div className="mt-3">
+                  <div className="text-sm font-semibold mb-2">Saved Cars</div>
+                  <div className="flex flex-wrap gap-2">
+                    {appt.savedCars.slice(0,4).map((car: any) => (
+                      <div key={car.id || car} className="border rounded p-2 text-sm bg-white">
+                        <div className="font-semibold">{car.year} {car.make} {car.model}</div>
+                        {car.trim && <div className="text-gray-600">{car.trim}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               {appt.pdfUrl ? (
                 <a href={appt.pdfUrl} target="_blank" rel="noopener" className="mt-3 inline-block text-blue-600 hover:text-blue-800 underline text-sm">
                   Download PDF

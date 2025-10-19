@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, serverTimestamp, collection, getDocs, query, where } from "firebase/firestore";
 import { getFinancialProfile, getRecommendations } from "@/lib/api";
 
 interface FinancialProfile {
@@ -47,6 +47,7 @@ export default function UserOverviewPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingRecs, setLoadingRecs] = useState(false);
+  const [appointments, setAppointments] = useState<any[]>([]);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -108,7 +109,15 @@ export default function UserOverviewPage() {
         }
       }
       
-      setLoading(false);
+  // Load user's appointments
+  const apptsSnap = await getDocs(query(collection(db, 'appointments'), where('userId', '==', u.uid)));
+  const appts = apptsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  // sort into upcoming and past based on date+time
+  const now = new Date();
+  appts.sort((a: any, b: any) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime());
+  setAppointments(appts);
+
+  setLoading(false);
     });
     return () => unsub();
   }, []);
@@ -333,6 +342,31 @@ export default function UserOverviewPage() {
             </div>
           </div>
         ) : null}
+
+        {/* Appointments Section */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">Your Appointments</h2>
+          {appointments.length === 0 ? (
+            <p className="text-gray-600">You have no appointments yet.</p>
+          ) : (
+            <div className="space-y-4">
+              {appointments.map((a: any) => {
+                const isPast = new Date(`${a.date}T${a.time}`) < new Date();
+                return (
+                  <div key={a.id} className="border rounded p-4 flex items-center justify-between">
+                    <div>
+                      <div className="font-semibold">{a.date} at {a.time}</div>
+                      <div className="text-sm text-gray-600">{a.dealershipName || a.dealershipId}</div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${isPast ? 'bg-gray-200 text-gray-700' : 'bg-green-100 text-green-700'}`}>
+                      {isPast ? 'Past' : (a.status || 'Upcoming')}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Car Preferences Card */}
         <div className="bg-white rounded-lg shadow p-6">

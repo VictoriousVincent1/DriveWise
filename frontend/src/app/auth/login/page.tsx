@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [role, setRole] = useState<"user" | "dealer">("user");
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -17,24 +18,33 @@ export default function LoginPage() {
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
       console.log("Login successful, user:", userCred.user.uid);
-      
-      // Try to check if user has completed profile setup
+
+      // Dealer flow or user flow based on selection
+      const { getDoc, doc } = await import("firebase/firestore");
+      const { db } = await import("../../../lib/firebase");
+
+      if (role === "dealer") {
+        // Verify dealer employee membership
+        const dealerDoc = await getDoc(doc(db, "dealers", userCred.user.uid));
+        if (dealerDoc.exists()) {
+          router.push("/dealer-employee");
+          return;
+        }
+        setError("This account is not registered as a dealer employee.");
+        return;
+      }
+
+      // USER: check if profile is complete
       try {
-        const { getDoc, doc } = await import("firebase/firestore");
-        const { db } = await import("../../../lib/firebase");
         const snap = await getDoc(doc(db, "users", userCred.user.uid));
         console.log("Profile data:", snap.exists() ? snap.data() : "No profile found");
-        
         if (snap.exists() && snap.data()?.profileCompleted) {
-          console.log("Redirecting to /user");
           router.push("/user");
         } else {
-          console.log("Redirecting to /profile");
           router.push("/profile");
         }
       } catch (firestoreErr: any) {
         console.warn("Firestore check failed (offline?), defaulting to /profile:", firestoreErr.message);
-        // If Firestore fails (offline), send to profile to be safe
         router.push("/profile");
       }
     } catch (err: any) {
@@ -47,11 +57,20 @@ export default function LoginPage() {
     setError("");
     try {
       const userCred = await signInWithPopup(auth, new GoogleAuthProvider());
-      // Check if user has completed profile setup
       const { getDoc, doc } = await import("firebase/firestore");
       const { db } = await import("../../../lib/firebase");
+
+      if (role === "dealer") {
+        const dealerDoc = await getDoc(doc(db, "dealers", userCred.user.uid));
+        if (dealerDoc.exists()) {
+          router.push("/dealer-employee");
+          return;
+        }
+        setError("This account is not registered as a dealer employee.");
+        return;
+      }
+
       const snap = await getDoc(doc(db, "users", userCred.user.uid));
-      
       if (snap.exists() && snap.data()?.profileCompleted) {
         router.push("/user");
       } else {
@@ -65,7 +84,25 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-6 text-gray-900 text-center">Sign In to DriveWise</h1>
+        <h1 className="text-2xl font-bold mb-2 text-gray-900 text-center">Sign In to DriveWise</h1>
+        <div className="mb-6 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setRole("user")}
+            className={`px-3 py-1 rounded-full text-sm border ${role === 'user' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
+            aria-pressed={role === 'user'}
+          >
+            Customer
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("dealer")}
+            className={`px-3 py-1 rounded-full text-sm border ${role === 'dealer' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
+            aria-pressed={role === 'dealer'}
+          >
+            Dealer Employee
+          </button>
+        </div>
         
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
@@ -126,12 +163,15 @@ export default function LoginPage() {
           Sign in with Google
         </button>
         
-        <p className="mt-6 text-sm text-gray-600 text-center">
-          Don't have an account?{" "}
-          <a href="/auth/signup" className="text-blue-600 hover:text-blue-700 underline font-medium">
-            Sign up
-          </a>
-        </p>
+        <div className="mt-6 text-sm text-gray-600 text-center">
+          <p>
+            Don't have an account?{" "}
+            <a href="/auth/signup" className="text-blue-600 hover:text-blue-700 underline font-medium">
+              Sign up
+            </a>
+          </p>
+          <p className="mt-2 text-gray-500">Dealer employees can select "Dealer Employee" above before signing in.</p>
+        </div>
       </div>
     </div>
   );
