@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
-// Nessie API - Customers
+// customers from API
 export async function getCustomers() {
   const response = await fetch(`${API_URL}/api/nessie/customers`);
   if (!response.ok) throw new Error('Failed to fetch customers');
@@ -27,7 +27,7 @@ export async function createCustomer(customerData: {
   return response.json();
 }
 
-// Nessie API - Accounts
+//accounts
 export async function getCustomerAccounts(customerId: string) {
   const response = await fetch(`${API_URL}/api/nessie/customers/${customerId}/accounts`);
   if (!response.ok) throw new Error('Failed to fetch accounts');
@@ -49,7 +49,7 @@ export async function createAccount(customerId: string, accountData: {
   return response.json();
 }
 
-// Nessie API - Transactions
+
 export async function getAccountTransactions(accountId: string) {
   const response = await fetch(`${API_URL}/api/nessie/accounts/${accountId}/transactions`);
   if (!response.ok) throw new Error('Failed to fetch transactions');
