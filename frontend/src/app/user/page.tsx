@@ -2,8 +2,13 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
+<<<<<<< HEAD
+import { doc, getDoc } from "firebase/firestore";
+import { getFinancialProfile, getRecommendations } from "@/lib/api";
+=======
 import { doc, getDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { getFinancialProfile } from "@/lib/api";
+>>>>>>> 83a79a491ea7a8c0357cdb2a337e757f6ca812fc
 
 interface FinancialProfile {
   creditScore: number;
@@ -14,12 +19,43 @@ interface FinancialProfile {
   maxLoanAmount: number;
 }
 
+interface Vehicle {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  trim: string;
+  msrp: number;
+  image: string;
+  features: string[];
+  fuelEconomy: {
+    city: number;
+    highway: number;
+  };
+  category: string;
+}
+
+interface Recommendation {
+  vehicle: Vehicle;
+  score: number;
+  reasons: string[];
+  percentOfBudget: number;
+  monthlyPayment: number;
+  downPayment: number;
+  paymentToIncomeRatio: string;
+}
+
 export default function UserOverviewPage() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [financialProfile, setFinancialProfile] = useState<FinancialProfile | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
+<<<<<<< HEAD
+  const [loadingRecs, setLoadingRecs] = useState(false);
+=======
   const [appointments, setAppointments] = useState<any[]>([]);
+>>>>>>> 83a79a491ea7a8c0357cdb2a337e757f6ca812fc
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -39,8 +75,15 @@ export default function UserOverviewPage() {
         try {
           const financial = await getFinancialProfile(profileData.nessieCustomerId);
           setFinancialProfile(financial);
+          
+          // Get vehicle recommendations
+          setLoadingRecs(true);
+          const recsData = await getRecommendations(profileData.nessieCustomerId);
+          setRecommendations(recsData.recommendations || []);
         } catch (error) {
-          console.error("Failed to load financial profile:", error);
+          console.error("Failed to load financial data:", error);
+        } finally {
+          setLoadingRecs(false);
         }
       }
 
@@ -72,13 +115,13 @@ export default function UserOverviewPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto mt-12 p-8 space-y-6">
+    <div className="max-w-7xl mx-auto mt-12 p-8 space-y-6">
       {/* User Info Card */}
       <div className="bg-white rounded-lg shadow p-6">
         <h1 className="text-3xl font-bold mb-2">
           Welcome, {profile?.displayName || user?.email}!
         </h1>
-        <p className="text-gray-600 text-sm">Email: {user?.email}</p>
+        <p className="text-gray-600 text-sm">Email: {user.email}</p>
       </div>
 
       {/* Financial Profile Card */}
@@ -135,11 +178,144 @@ export default function UserOverviewPage() {
               You're pre-approved for up to ${financialProfile.maxLoanAmount.toLocaleString()}!
             </p>
             <p className="text-sm text-blue-700 mt-1">
-              Start browsing vehicles that fit your budget.
+              Check out our personalized recommendations below.
             </p>
           </div>
         </div>
       )}
+
+      {/* Recommended Vehicles */}
+      {loadingRecs ? (
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="animate-pulse">Loading recommendations...</div>
+        </div>
+      ) : recommendations.length > 0 ? (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold mb-4">🚗 Recommended for You</h2>
+          <p className="text-gray-600 mb-6">
+            Based on your financial profile, here are our top picks:
+          </p>
+          
+          <div className="space-y-4">
+            {recommendations.map((rec, index) => (
+              <div
+                key={rec.vehicle.id}
+                className="border-2 border-gray-200 rounded-lg p-6 hover:border-blue-500 hover:shadow-md transition-all"
+              >
+                <div className="flex items-start gap-4">
+                  {/* Rank Badge */}
+                  <div className="flex-shrink-0">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl ${
+                      index === 0 ? 'bg-yellow-500' : 
+                      index === 1 ? 'bg-gray-400' : 
+                      index === 2 ? 'bg-amber-600' : 'bg-blue-500'
+                    }`}>
+                      {index + 1}
+                    </div>
+                  </div>
+
+                  {/* Vehicle Info */}
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h3 className="text-xl font-bold">
+                          {rec.vehicle.year} {rec.vehicle.make} {rec.vehicle.model}
+                        </h3>
+                        <p className="text-gray-600">{rec.vehicle.trim}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-blue-600">
+                          ${rec.vehicle.msrp.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {rec.percentOfBudget}% of your budget
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Why Recommended */}
+                    <div className="mb-3">
+                      <p className="text-sm font-semibold text-gray-700 mb-1">Why we recommend this:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {rec.reasons.map((reason, idx) => (
+                          <span
+                            key={idx}
+                            className="px-3 py-1 bg-green-50 text-green-700 text-sm rounded-full border border-green-200"
+                          >
+                            ✓ {reason}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Payment Details */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase">Est. Monthly Payment</p>
+                        <p className="text-lg font-bold text-gray-900">
+                          ${rec.monthlyPayment.toLocaleString()}/mo
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase">Down Payment</p>
+                        <p className="text-lg font-bold text-gray-900">
+                          ${rec.downPayment.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase">Payment/Income</p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {rec.paymentToIncomeRatio}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 uppercase">Fuel Economy</p>
+                        <p className="text-lg font-bold text-gray-900">
+                          {rec.vehicle.fuelEconomy.city}/{rec.vehicle.fuelEconomy.highway} mpg
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="mt-3">
+                      <p className="text-xs text-gray-500 uppercase mb-1">Key Features:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {rec.vehicle.features.slice(0, 4).map((feature, idx) => (
+                          <span
+                            key={idx}
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded"
+                          >
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* CTA */}
+                    <div className="mt-4 flex gap-3">
+                      <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors">
+                        View Details
+                      </button>
+                      <button className="px-6 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 font-medium transition-colors">
+                        Compare
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 text-center">
+            <a
+              href="/dealer-connect"
+              className="inline-block px-8 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium transition-colors"
+            >
+              Browse All Vehicles
+            </a>
+          </div>
+        </div>
+      ) : null}
 
       {/* Car Preferences Card */}
       <div className="bg-white rounded-lg shadow p-6">
@@ -170,33 +346,33 @@ export default function UserOverviewPage() {
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a
-            href="/finance-fit"
-            className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
-          >
-            <div className="text-3xl mb-2">💰</div>
-            <h3 className="font-bold">Check Financing</h3>
-            <p className="text-sm text-gray-600">See what you can afford</p>
-          </a>
-
-          <a
-            href="/dealer-connect"
-            className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
-          >
-            <div className="text-3xl mb-2">🤝</div>
-            <h3 className="font-bold">Find Dealers</h3>
-            <p className="text-sm text-gray-600">Connect with local dealers</p>
-          </a>
-
-          <a
-            href="/trade-in"
-            className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
-          >
-            <div className="text-3xl mb-2">🔄</div>
-            <h3 className="font-bold">Trade-In Value</h3>
-            <p className="text-sm text-gray-600">Get your car's worth</p>
-          </a>
-        </div>
+            <a
+              href="/finance-fit"
+              className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
+            >
+              <div className="text-3xl mb-2">💰</div>
+              <h3 className="font-bold">Check Financing</h3>
+              <p className="text-sm text-gray-600">See what you can afford</p>
+            </a>
+  
+            <a
+              href="/dealer-connect"
+              className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
+            >
+              <div className="text-3xl mb-2">🤝</div>
+              <h3 className="font-bold">Find Dealers</h3>
+              <p className="text-sm text-gray-600">Connect with local dealers</p>
+            </a>
+  
+            <a
+              href="/trade-in"
+              className="p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
+            >
+              <div className="text-3xl mb-2">🔄</div>
+              <h3 className="font-bold">Trade-In Value</h3>
+              <p className="text-sm text-gray-600">Get your car's worth</p>
+            </a>
+          </div>
       </div>
 
       {/* Appointments */}

@@ -151,6 +151,123 @@ app.get('/api/admin/customers', async (req: Request, res: Response) => {
   }
 });
 
+// Vehicle Recommendations based on financial profile
+app.get('/api/recommendations/:nessieCustomerId', async (req: Request, res: Response) => {
+  try {
+    const { nessieCustomerId } = req.params;
+    const { generateFinancialProfile } = await import('./api/nessie');
+    const { mockVehicles } = await import('./data/vehicles');
+    
+    // Get customer and financial profile
+    const customers = await getCustomers();
+    const customer = customers.find((c: any) => c._id === nessieCustomerId);
+    
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    
+    const accounts = await getAccounts(nessieCustomerId);
+    const financialProfile = generateFinancialProfile(customer, accounts);
+    
+    const { maxLoanAmount, creditScore, monthlyIncome, totalBalance } = financialProfile;
+    const savingsBalance = totalBalance;
+    
+    // Filter vehicles within budget
+    const affordableVehicles = mockVehicles.filter(v => v.msrp <= maxLoanAmount);
+    
+    // Score each vehicle
+    const scoredVehicles = affordableVehicles.map(vehicle => {
+      const percentOfBudget = (vehicle.msrp / maxLoanAmount) * 100;
+      
+      // Calculate score (0-100)
+      let score = 0;
+      let reasons: string[] = [];
+      
+      // Optimal price range: 60-80% of max budget
+      if (percentOfBudget >= 60 && percentOfBudget <= 80) {
+        score += 40;
+        reasons.push('Optimal budget fit');
+      } else if (percentOfBudget >= 50 && percentOfBudget < 60) {
+        score += 30;
+        reasons.push('Great value');
+      } else if (percentOfBudget > 80) {
+        score += 15;
+        reasons.push('Maximum budget');
+      } else {
+        score += 20;
+        reasons.push('Budget-friendly');
+      }
+      
+      // Fuel efficiency bonus
+      const avgMpg = (vehicle.fuelEconomy.city + vehicle.fuelEconomy.highway) / 2;
+      if (avgMpg > 35) {
+        score += 20;
+        reasons.push('Excellent fuel economy');
+      } else if (avgMpg > 25) {
+        score += 10;
+        reasons.push('Good fuel economy');
+      }
+      
+      // Category preferences
+      if (vehicle.category === 'sedan' || vehicle.category === 'hybrid') {
+        score += 15;
+        reasons.push('Reliable daily driver');
+      } else if (vehicle.category === 'suv') {
+        score += 10;
+        reasons.push('Versatile and spacious');
+      }
+      
+      // Down payment feasibility
+      const recommendedDownPayment = vehicle.msrp * 0.20;
+      if (savingsBalance >= recommendedDownPayment) {
+        score += 15;
+        reasons.push('Down payment covered');
+      } else if (savingsBalance >= recommendedDownPayment * 0.5) {
+        score += 5;
+        reasons.push('Partial down payment available');
+      }
+      
+      // Monthly payment estimate (5% APR, 60 months)
+      const loanAmount = vehicle.msrp - Math.min(savingsBalance, vehicle.msrp * 0.20);
+      const monthlyPayment = (loanAmount * (0.05 / 12) * Math.pow(1 + 0.05/12, 60)) / (Math.pow(1 + 0.05/12, 60) - 1);
+      const paymentToIncomeRatio = monthlyPayment / monthlyIncome;
+      
+      if (paymentToIncomeRatio <= 0.15) {
+        score += 10;
+        reasons.push('Low payment-to-income ratio');
+      }
+      
+      return {
+        vehicle,
+        score,
+        reasons,
+        percentOfBudget: Math.round(percentOfBudget),
+        monthlyPayment: Math.round(monthlyPayment),
+        downPayment: Math.round(Math.min(savingsBalance, vehicle.msrp * 0.20)),
+        paymentToIncomeRatio: (paymentToIncomeRatio * 100).toFixed(1)
+      };
+    });
+    
+    // Sort by score and get top 5
+    const recommendations = scoredVehicles
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5);
+    
+    res.json({
+      financialProfile: {
+        maxLoanAmount,
+        creditScore,
+        monthlyIncome,
+        savingsBalance
+      },
+      recommendations
+    });
+  } catch (error: any) {
+    console.error('Recommendations Error:', error);
+    res.status(500).json({ error: 'Failed to generate recommendations', message: error.message });
+  }
+});
+
 // 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({
