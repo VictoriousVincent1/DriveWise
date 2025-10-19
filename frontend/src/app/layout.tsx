@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AuthNav from "../components/AuthNav";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
@@ -53,7 +54,6 @@ export default function RootLayout({
               <AuthNav />
 // --- Add this at the top ---
 
-import AuthNav from "../components/AuthNav";
 
             </div>
           </div>
@@ -90,6 +90,7 @@ import AuthNav from "../components/AuthNav";
               </div>
               <div>
                 <h4 className="font-semibold mb-4">Legal</h4>
+
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
                   <li><a href="#" className="hover:text-white">Terms of Service</a></li>
