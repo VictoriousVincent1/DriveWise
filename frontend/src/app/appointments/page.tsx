@@ -30,6 +30,8 @@ export default function AppointmentBookingPage() {
   const [user, setUser] = useState<any>(null);
   const [date, setDate] = useState<string>("");
   const [time, setTime] = useState<string>("");
+  const [calendarSlots, setCalendarSlots] = useState<any[]>([]);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [dealers, setDealers] = useState<any[]>([]);
   // dealership selection (austinDealers id) vs. specific dealer employee selection (Firestore uid)
   const [selectedDealershipId, setSelectedDealershipId] = useState<string>("");
@@ -39,6 +41,8 @@ export default function AppointmentBookingPage() {
   const [status, setStatus] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [comments, setComments] = useState<string>("");
+  const [pendingSlot, setPendingSlot] = useState<{date: string, time: string, dealerId: string} | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -52,40 +56,85 @@ export default function AppointmentBookingPage() {
     return () => unsub();
   }, []);
 
+  // Fetch and aggregate availability for selected dealership
+  useEffect(() => {
+    async function fetchAvailability() {
+      setAvailabilityLoading(true);
+      setCalendarSlots([]);
+      if (!selectedDealershipId) { setAvailabilityLoading(false); return; }
+      // Get all dealer employees for this dealership
+      const q = query(collection(db, "dealers"), where("dealershipId", "==", selectedDealershipId));
+      const snap = await getDocs(q);
+      const employees = snap.docs.map(d => d.data());
+      const dayNames = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+      const slots: any[] = [];
+      for (let i = 0; i < 7; i++) {
+        const dateObj = new Date();
+        dateObj.setDate(dateObj.getDate() + i);
+        const dayKey = dayNames[dateObj.getDay()];
+        let daySlots: any[] = [];
+        employees.forEach(emp => {
+          const avail = emp.availability || {};
+          const slotsForDay = avail[dayKey] || [];
+          slotsForDay.forEach((slot: any) => {
+            daySlots.push({
+              start: slot.start,
+              end: slot.end,
+              employee: emp.displayName || emp.email || "Dealer",
+              date: dateObj.toISOString().slice(0,10),
+              dealerId: emp.id || emp.uid
+            });
+          });
+        });
+        if (daySlots.length > 0) {
+          slots.push({
+            date: dateObj.toISOString().slice(0,10),
+            day: dayKey,
+            slots: daySlots
+          });
+        }
+      }
+      setCalendarSlots(slots);
+      setAvailabilityLoading(false);
+    }
+    fetchAvailability();
+  }, [selectedDealershipId]);
+
   const dealerList = useMemo(() => {
     let list = dealers;
     if (selectedDealershipId) {
       list = list.filter((d) => d.dealershipId === selectedDealershipId);
     }
-    if (onlyShowAvailableAtTime && date && time) {
+      if (onlyShowAvailableAtTime && date && time) {
       list = dealersAvailableAt(list, date, time);
     }
     return list;
   }, [dealers, selectedDealershipId, onlyShowAvailableAtTime, date, time]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const bookAppointment = async (date: string, time: string, dealerId: string) => {
     setError("");
     if (!user) { setError("Please log in first."); return; }
-    if (!date || !time) { setError("Select date and time."); return; }
     if (!selectedDealershipId) { setError("Please select a dealership."); return; }
-
     try {
       setSaving(true);
-      // write appointment
       await addDoc(collection(db, "appointments"), {
         userId: user.uid,
-        dealerId: selectedDealerId || null,
+        dealerId: dealerId || null,
         dealershipId: selectedDealershipId,
         dealershipName: selectedDealershipName || null,
         date,
         time,
+        comments,
         status: "requested",
         createdAt: Date.now()
       });
       setStatus("Appointment requested! You'll receive a confirmation soon.");
       setSaving(false);
       setSelectedDealerId("");
+      setComments("");
+      setDate("");
+      setTime("");
+      setPendingSlot(null);
     } catch (err: any) {
       setSaving(false);
       setError(err.message);
@@ -93,58 +142,66 @@ export default function AppointmentBookingPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-12 bg-white p-6 rounded shadow">
+    <div className="max-w-2xl mx-auto mt-12 bg-white p-6 rounded shadow">
       <h1 className="text-2xl font-bold mb-4">Book an Appointment</h1>
       {!user && <div className="text-sm text-gray-600 mb-4">You must be logged in to book an appointment.</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1">Dealership</label>
-          <DealerAutocomplete
-            value={selectedDealershipId || undefined}
-            onChange={(id, meta) => {
-              setSelectedDealershipId(id || "");
-              setSelectedDealershipName(meta?.name || "");
-            }}
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block mb-1">Date</label>
-            <input type="date" className="w-full border rounded px-2 py-1" value={date} onChange={e => setDate(e.target.value)} required />
-          </div>
-          <div>
-            <label className="block mb-1">Time</label>
-            <input type="time" className="w-full border rounded px-2 py-1" value={time} onChange={e => setTime(e.target.value)} required />
-          </div>
-        </div>
-        <div className="flex items-center gap-2 text-sm">
-          <input id="filterByTime" type="checkbox" className="w-4 h-4" checked={onlyShowAvailableAtTime} onChange={e => setOnlyShowAvailableAtTime(e.target.checked)} />
-          <label htmlFor="filterByTime">Only show dealers available at the selected time</label>
-        </div>
-        {error && <div className="text-red-600 text-sm">{error}</div>}
-        {status && <div className="text-green-700 text-sm">{status}</div>}
-        <button type="submit" disabled={!user || saving} className="w-full bg-blue-600 text-white py-2 rounded">{saving ? 'Booking...' : 'Book Appointment'}</button>
-      </form>
-
-      {/* Suggested dealers list */}
-      {dealerList.length > 0 && (
-        <div className="mt-6">
-          <h2 className="font-semibold mb-2">Dealers {onlyShowAvailableAtTime && date && time ? 'available at this time' : 'at selected dealership'}</h2>
-          <ul className="space-y-2">
-            {dealerList.map(d => (
-              <li key={d.id} className={`p-2 border rounded ${selectedDealerId === d.id ? 'border-blue-600' : 'border-gray-200'}`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{d.dealership || d.displayName || d.email}</div>
-                    <div className="text-xs text-gray-600">{d.dealerZip || '—'}</div>
-                  </div>
-                  <button type="button" className="px-3 py-1 text-sm bg-gray-100 rounded" onClick={() => setSelectedDealerId(d.id)}>Select</button>
+      <div className="mb-4">
+        <DealerAutocomplete
+          value={selectedDealershipId || undefined}
+          onChange={(id, meta) => {
+            setSelectedDealershipId(id || "");
+            setSelectedDealershipName(meta?.name || "");
+            setDate("");
+            setTime("");
+            setSelectedDealerId("");
+          }}
+        />
+      </div>
+      <div className="space-y-4 mb-6">
+        <label className="block mb-1">Comments / Motivations</label>
+        <textarea
+          className="w-full border rounded px-2 py-1 min-h-[60px]"
+          value={comments}
+          onChange={e => setComments(e.target.value)}
+          placeholder="Describe what you're looking for, your current vehicle, financing needs, or any other info for the dealer."
+          disabled={saving}
+        />
+      </div>
+      {/* Calendar UI for available slots */}
+      {availabilityLoading ? (
+        <div>Loading available slots...</div>
+      ) : selectedDealershipId && calendarSlots.length > 0 ? (
+        <div className="mb-6">
+          <h2 className="font-semibold mb-2">Available Appointment Slots</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {calendarSlots.map((day: any) => (
+              <div key={day.date} className="border rounded p-2">
+                <div className="font-bold mb-1">{new Date(day.date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+                <div className="space-y-1">
+                  {day.slots.map((slot: any, idx: number) => (
+                    <button
+                      key={idx}
+                      className={`w-full text-left px-2 py-1 rounded ${pendingSlot && pendingSlot.date === day.date && pendingSlot.time === slot.start && pendingSlot.dealerId === slot.dealerId ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-blue-50'}`}
+                      disabled={saving}
+                      onClick={() => {
+                        setPendingSlot({date: day.date, time: slot.start, dealerId: slot.dealerId});
+                        bookAppointment(day.date, slot.start, slot.dealerId);
+                      }}
+                    >
+                      <span className="font-medium">{slot.start} - {slot.end}</span>
+                      <span className="ml-2 text-xs text-gray-600">{slot.employee}</span>
+                    </button>
+                  ))}
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
-      )}
+      ) : selectedDealershipId ? (
+        <div className="text-gray-600 mb-6">No available slots for this dealership.</div>
+      ) : null}
+      {error && <div className="text-red-600 text-sm">{error}</div>}
+      {status && <div className="text-green-700 text-sm">{status}</div>}
     </div>
   );
 }

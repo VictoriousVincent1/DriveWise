@@ -1,9 +1,12 @@
-import type { Metadata } from "next";
+"use client";
 import AuthNav from "../components/AuthNav";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import GeminiChatbot from '../components/GeminiChatbot';
+import { useEffect, useState } from "react";
+import { auth, db } from "../lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,18 +18,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "DriveWise - Your Smart Companion for Car Financing & Ownership",
-  description: "Personalized financing, dealership connections, and smart trade-in tools for your next vehicle.",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isDealer, setIsDealer] = useState<boolean>(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        setIsDealer(false);
+        setLoading(false);
+        return;
+      }
+      // Check if user is a dealer
+      const dealerDoc = await getDoc(doc(db, "dealers", user.uid));
+      setIsDealer(dealerDoc.exists());
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <title>DriveWise - Your Smart Companion for Car Financing & Ownership</title>
+        <meta name="description" content="Personalized financing, dealership connections, and smart trade-in tools for your next vehicle." />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
         suppressHydrationWarning
@@ -41,17 +61,32 @@ export default function RootLayout({
                 </Link>
               </div>
               <div className="flex-1" />
-              <div className="hidden md:flex space-x-8">
-                <Link href="/finance-fit" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-                  Finance Fit
-                </Link>
-                <Link href="/dealer-connect" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-                  Dealer Connect
-                </Link>
-                <Link href="/trade-in" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
-                  Trade-In
-                </Link>
-              </div>
+              {!loading && (
+                <div className="hidden md:flex space-x-8">
+                  {isDealer ? (
+                    <>
+                      <Link href="/dealer-employee" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                        Clients
+                      </Link>
+                      <Link href="/dealer-employee/inventory" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                        Inventory
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/finance-fit" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                        Finance Fit
+                      </Link>
+                      <Link href="/dealer-connect" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                        Dealer Connect
+                      </Link>
+                      <Link href="/trade-in" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                        Trade-In
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
               <div className="flex items-center ml-6">
                 <AuthNav />
               </div>

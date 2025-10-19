@@ -1,5 +1,6 @@
 'use client';
-
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Dealer } from '../../types';
 
 interface DealerListProps {
@@ -7,6 +8,26 @@ interface DealerListProps {
 }
 
 export default function DealerList({ dealers }: DealerListProps) {
+  const [vehicleCounts, setVehicleCounts] = useState<{[dealerId: string]: number}>({});
+  const router = useRouter();
+  useEffect(() => {
+    async function fetchCounts() {
+      const counts: {[dealerId: string]: number} = {};
+      for (const dealer of dealers) {
+        try {
+          // Fetch vehicle count from Firestore API route
+          const res = await fetch(`/api/dealer-vehicle-count?dealershipId=${dealer.id}`);
+          const data = await res.json();
+          counts[dealer.id] = data.count || 0;
+        } catch {
+          counts[dealer.id] = 0;
+        }
+      }
+      setVehicleCounts(counts);
+    }
+    fetchCounts();
+  }, [dealers]);
+
   return (
     <div className="space-y-4">
       {dealers.map((dealer) => (
@@ -45,20 +66,17 @@ export default function DealerList({ dealers }: DealerListProps) {
 
               <div className="flex items-center gap-2 text-sm">
                 <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-                  {dealer.inventory.length} vehicles in stock
+                  {vehicleCounts[dealer.id] ?? 0} vehicles in stock
                 </span>
               </div>
             </div>
 
             <div className="flex flex-col gap-2 mt-4 md:mt-0 md:ml-4 min-w-[200px]">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
-                Request Quote
-              </button>
-              <button className="bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 py-2 px-4 rounded-lg font-medium transition-colors">
-                Schedule Test Drive
-              </button>
-              <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-medium transition-colors">
-                View Inventory
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
+                onClick={() => router.push(`/appointments?dealershipId=${dealer.id}`)}
+              >
+                Book Appointment
               </button>
             </div>
           </div>
