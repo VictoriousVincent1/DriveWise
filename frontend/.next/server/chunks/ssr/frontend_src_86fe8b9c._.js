@@ -33,6 +33,7 @@ function estimateTradeIn(vehicle) {
         make: vehicle.make || '',
         model: vehicle.model || '',
         year: vehicle.year || 2020,
+        mileage: 36000,
         condition,
         estimatedValue: value,
         note: 'Estimate based on year and model. Actual value may vary.'
@@ -62,7 +63,7 @@ function TradeInInput({ onSave }) {
                 children: "Your Current Toyota (Trade-In)"
             }, void 0, false, {
                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                lineNumber: 52,
+                lineNumber: 53,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -75,7 +76,7 @@ function TradeInInput({ onSave }) {
                                 children: "Model"
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                lineNumber: 55,
+                                lineNumber: 56,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -86,13 +87,13 @@ function TradeInInput({ onSave }) {
                                 placeholder: "e.g. Camry"
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                lineNumber: 56,
+                                lineNumber: 57,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 54,
+                        lineNumber: 55,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -102,7 +103,7 @@ function TradeInInput({ onSave }) {
                                 children: "Year"
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                lineNumber: 59,
+                                lineNumber: 60,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -114,13 +115,13 @@ function TradeInInput({ onSave }) {
                                 onChange: (e)=>handleChange('year', Number(e.target.value))
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                lineNumber: 60,
+                                lineNumber: 61,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 58,
+                        lineNumber: 59,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -130,7 +131,7 @@ function TradeInInput({ onSave }) {
                                 children: "Trim"
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                lineNumber: 63,
+                                lineNumber: 64,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -141,13 +142,13 @@ function TradeInInput({ onSave }) {
                                 placeholder: "e.g. LE"
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                lineNumber: 64,
+                                lineNumber: 65,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 62,
+                        lineNumber: 63,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -157,7 +158,7 @@ function TradeInInput({ onSave }) {
                                 children: "Category"
                             }, void 0, false, {
                                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                lineNumber: 67,
+                                lineNumber: 68,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -170,7 +171,7 @@ function TradeInInput({ onSave }) {
                                         children: "Sedan"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                        lineNumber: 69,
+                                        lineNumber: 70,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -178,7 +179,7 @@ function TradeInInput({ onSave }) {
                                         children: "SUV"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                        lineNumber: 70,
+                                        lineNumber: 71,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -186,7 +187,7 @@ function TradeInInput({ onSave }) {
                                         children: "Truck"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                        lineNumber: 71,
+                                        lineNumber: 72,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -194,7 +195,7 @@ function TradeInInput({ onSave }) {
                                         children: "Minivan"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                        lineNumber: 72,
+                                        lineNumber: 73,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -202,25 +203,25 @@ function TradeInInput({ onSave }) {
                                         children: "Crossover"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                        lineNumber: 73,
+                                        lineNumber: 74,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                                lineNumber: 68,
+                                lineNumber: 69,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 66,
+                        lineNumber: 67,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                lineNumber: 53,
+                lineNumber: 54,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -229,7 +230,7 @@ function TradeInInput({ onSave }) {
                 children: "Estimate Trade-In Value"
             }, void 0, false, {
                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                lineNumber: 77,
+                lineNumber: 78,
                 columnNumber: 7
             }, this),
             estimate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -239,14 +240,14 @@ function TradeInInput({ onSave }) {
                         children: "Estimated Value:"
                     }, void 0, false, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 80,
+                        lineNumber: 81,
                         columnNumber: 11
                     }, this),
                     " $",
                     estimate.estimatedValue.toLocaleString(),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 80,
+                        lineNumber: 81,
                         columnNumber: 88
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -257,12 +258,12 @@ function TradeInInput({ onSave }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 81,
+                        lineNumber: 82,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 81,
+                        lineNumber: 82,
                         columnNumber: 89
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -270,19 +271,19 @@ function TradeInInput({ onSave }) {
                         children: estimate.note
                     }, void 0, false, {
                         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                        lineNumber: 82,
+                        lineNumber: 83,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-                lineNumber: 79,
+                lineNumber: 80,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/frontend/src/components/trade-in/TradeInInput.tsx",
-        lineNumber: 51,
+        lineNumber: 52,
         columnNumber: 5
     }, this);
 }
@@ -296,10 +297,14 @@ __turbopack_context__.s([
     ()=>calculateMonthlyPayment,
     "calculateTotalInterest",
     ()=>calculateTotalInterest,
+    "estimateTradeInDepreciation",
+    ()=>estimateTradeInDepreciation,
     "formatCurrency",
     ()=>formatCurrency,
     "formatPercent",
-    ()=>formatPercent
+    ()=>formatPercent,
+    "validateVIN",
+    ()=>validateVIN
 ]);
 function formatCurrency(value) {
     return new Intl.NumberFormat('en-US', {
@@ -320,6 +325,27 @@ function calculateMonthlyPayment(principal, aprPercent, termMonths) {
 function calculateTotalInterest(monthlyPayment, termMonths, principal) {
     const totalPaid = monthlyPayment * termMonths;
     return Math.max(0, Math.round((totalPaid - principal) * 100) / 100);
+}
+function estimateTradeInDepreciation(msrp, ageYears, mileage, condition) {
+    // Simple model: base depreciation 15% first year, 10% thereafter; mileage impact; condition modifier
+    let value = msrp * Math.pow(0.85, Math.min(1, ageYears)) * Math.pow(0.90, Math.max(0, ageYears - 1));
+    // mileage: subtract $0.05 per mile over 12k/year baseline
+    const expectedMiles = ageYears * 12000;
+    const extraMiles = Math.max(0, mileage - expectedMiles);
+    value -= extraMiles * 0.05;
+    // condition modifier
+    const conditionFactor = {
+        excellent: 1.05,
+        good: 1.0,
+        fair: 0.9,
+        poor: 0.75
+    }[condition];
+    value *= conditionFactor;
+    return Math.max(1000, Math.round(value));
+}
+function validateVIN(vin) {
+    // Basic VIN format check: 17 alphanumeric characters, excluding I, O, Q
+    return /^[A-HJ-NPR-Z0-9]{17}$/i.test(vin);
 }
 }),
 "[project]/frontend/src/components/trade-in/TradeInBestDeal.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
