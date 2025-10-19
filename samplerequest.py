@@ -1,3 +1,4 @@
+# sample request for nessie,  included for brevity and understanding of all developers across the code base
 import requests
 import json 
 import os 

@@ -37,7 +37,7 @@
 
 ---
 
-### 🏎️ Performance Cars - GR Garage (9 Models)
+### Performance Cars - GR Garage (9 Models)
 
 #### 2026 GR86
 12. **GR86 Base** - $30,800 | 20/26 MPG | 228 HP, 6-Speed Manual, 0-60 in 6.1s
