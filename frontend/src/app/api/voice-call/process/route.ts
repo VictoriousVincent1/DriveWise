@@ -1,6 +1,7 @@
 // Process user speech and generate AI response
 // Location: Frontend/src/app/api/voice-call/process/route.ts
 
+
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 
@@ -9,19 +10,26 @@ export async function POST(request: NextRequest) {
   const speechResult = formData.get('SpeechResult') as string;
   const confidence = formData.get('Confidence') as string;
 
+  // Log transcript from STT
+  console.log('--- TRANSCRIPT RECEIVED FROM STT ---');
   console.log('User said:', speechResult);
   console.log('Confidence:', confidence);
 
   const VoiceResponse = twilio.twiml.VoiceResponse;
   const response = new VoiceResponse();
 
-  // Generate AI response based on what user said
-  const aiResponse = await generateAIResponse(speechResult);
+
+  // Generate AI response using Gemini (full LLM)
+  const aiResponse = await generateGeminiResponse(speechResult);
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3003';
 
-  // Play AI response using ElevenLabs
-  response.play(`${baseUrl}/api/voice-call/speak?text=${encodeURIComponent(aiResponse)}`);
+
+  // Play AI response using ElevenLabs, allow dynamic voice selection
+  const voice = formData.get('Voice') as string | undefined;
+  let speakUrl = `${baseUrl}/api/voice-call/speak?text=${encodeURIComponent(aiResponse)}`;
+  if (voice) speakUrl += `&voice=${encodeURIComponent(voice)}`;
+  response.play(speakUrl);
 
   // Check if conversation should continue
   if (shouldContinueConversation(speechResult, aiResponse)) {
@@ -49,45 +57,35 @@ export async function POST(request: NextRequest) {
   });
 }
 
-async function generateAIResponse(userInput: string): Promise<string> {
-  // Convert to lowercase for easier matching
-  const input = userInput.toLowerCase();
 
-  // Simple rule-based responses (you can replace with OpenAI API)
-  if (input.includes('price') || input.includes('cost') || input.includes('afford')) {
-    return "Based on typical budgets, our Corolla starts around $28,500, the Camry at $32,400, and the RAV4 at $36,800. We also offer financing options starting as low as $358 per month. Would you like to hear about specific models or financing details?";
+// Use Gemini LLM for all responses
+async function generateGeminiResponse(userInput: string): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return 'Sorry, Gemini AI is not configured.';
+  const prompt = `You are a helpful ToyotaPath assistant. Answer the user naturally and conversationally.\n\nUser: ${userInput}\nAssistant:`;
+  // Log the prompt being sent to Gemini
+  console.log('--- GEMINI PROMPT ---');
+  console.log(prompt);
+  try {
+    const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+    });
+    if (!resp.ok) {
+      const t = await resp.text();
+      console.error('Gemini API error:', t);
+      throw new Error('Gemini failed: ' + t);
+    }
+    const data = await resp.json();
+    // Log the Gemini API response
+    console.log('--- GEMINI API RESPONSE ---');
+    console.log(JSON.stringify(data, null, 2));
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, no response from Gemini.';
+  } catch (e: any) {
+    console.error('Gemini error:', e.message);
+    return 'Sorry, there was an error with the AI service.';
   }
-  
-  if (input.includes('rav4') || input.includes('suv')) {
-    return "The RAV4 is our most popular SUV! The 2024 RAV4 XLE starts at $36,800. It features all-wheel drive, excellent fuel economy at 27 city and 35 highway MPG, and comes loaded with safety features. Would you like to schedule a test drive or hear about financing options?";
-  }
-  
-  if (input.includes('camry') || input.includes('sedan')) {
-    return "The 2024 Camry is a fantastic choice! It starts at $32,400 and offers 28 city and 39 highway MPG. It includes Toyota Safety Sense, wireless charging, and a comfortable interior. We have several in stock. Would you like to visit a dealer or learn about our special financing rates?";
-  }
-  
-  if (input.includes('finance') || input.includes('loan') || input.includes('lease')) {
-    return "We offer both financing and leasing options! Current rates start at 4.9% APR for qualified buyers, and lease payments begin at $329 per month. We can also calculate a custom payment based on your budget. What's your preferred monthly payment range?";
-  }
-  
-  if (input.includes('dealer') || input.includes('location') || input.includes('test drive')) {
-    return "We have 5 certified Toyota dealers in your area. The closest one is Toyota of Downtown, just 2.3 miles away, with a 4.8 star rating. They're currently offering 0% APR for 60 months. Would you like me to schedule a test drive there?";
-  }
-  
-  if (input.includes('hybrid') || input.includes('electric') || input.includes('fuel economy')) {
-    return "Great question about fuel efficiency! Our Prius hybrid gets an amazing 57 MPG combined, and the RAV4 Prime plug-in hybrid offers 42 miles of electric range plus 302 horsepower. Both qualify for potential tax incentives. Which interests you more?";
-  }
-  
-  if (input.includes('yes') || input.includes('sure') || input.includes('okay')) {
-    return "Wonderful! I can connect you with one of our specialists who can help you schedule a test drive and discuss financing options. Would you like me to transfer you now, or would you prefer to receive a text message with their contact information?";
-  }
-  
-  if (input.includes('no') || input.includes('goodbye') || input.includes('bye')) {
-    return "No problem! Feel free to visit ToyotaPath.com anytime to explore our inventory, calculate payments, or chat with our online assistant. Thanks for calling!";
-  }
-  
-  // Default response
-  return "I'd be happy to help with that! I can provide information about our vehicles, financing options, dealer locations, and schedule test drives. What specifically would you like to know more about?";
 }
 
 function shouldContinueConversation(userInput: string, aiResponse: string): boolean {

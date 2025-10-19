@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
+import { adminDb, adminAuth } from '@/lib/firebaseAdmin';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -18,12 +19,44 @@ export async function POST(request: NextRequest) {
       );
     }
   try {
-    const { phoneNumber, userName, context } = await request.json();
+    const { phoneNumber, userId, email, userName, context } = await request.json();
 
-    // Validate phone number
-    if (!phoneNumber || !phoneNumber.match(/^\+?[1-9]\d{1,14}$/)) {
+    // Prefer user's saved phone in Firestore/Auth
+    let targetPhone: string | undefined = undefined;
+    if (userId) {
+      // Try Auth user
+      try {
+        const user = await adminAuth.getUser(userId);
+        targetPhone = user.phoneNumber || undefined;
+      } catch {}
+      // Try Firestore profile
+      if (!targetPhone) {
+        const profileDoc = await adminDb.collection('users').doc(String(userId)).get();
+        targetPhone = (profileDoc.exists ? (profileDoc.data()?.phone as string | undefined) : undefined) || targetPhone;
+      }
+    }
+    if (!targetPhone && email) {
+      // Try Firestore users lookup by email
+      const snap = await adminDb.collection('users').where('email', '==', email).limit(1).get();
+      if (!snap.empty) {
+        targetPhone = (snap.docs[0].data()?.phone as string | undefined) || undefined;
+      }
+      if (!targetPhone) {
+        // Try Auth lookup by email
+        try {
+          const user = await adminAuth.getUserByEmail(email);
+          targetPhone = user.phoneNumber || undefined;
+        } catch {}
+      }
+    }
+
+    // Fallback to provided phoneNumber
+    targetPhone = targetPhone || phoneNumber;
+
+    // Validate final phone number
+    if (!targetPhone || !/^\+?[1-9]\d{1,14}$/.test(targetPhone)) {
       return NextResponse.json(
-        { error: 'Invalid phone number format' },
+        { error: 'No valid phone on file. Provide a phoneNumber in E.164 format.' },
         { status: 400 }
       );
     }
@@ -35,7 +68,7 @@ export async function POST(request: NextRequest) {
     // Initiate the call
     const call = await client.calls.create({
       from: twilioNumber,
-      to: phoneNumber,
+      to: targetPhone,
       url: twimlUrl,
       method: 'POST',
       statusCallback: `${baseUrl}/api/voice-call/status`,
@@ -50,6 +83,7 @@ export async function POST(request: NextRequest) {
       callSid: call.sid,
       status: call.status,
       message: 'Call initiated successfully',
+      to: targetPhone,
     });
   } catch (error: any) {
     console.error('Error initiating call:', error);
