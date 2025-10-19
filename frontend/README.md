@@ -1,9 +1,9 @@
-# 🎨 Drive Wise Frontend
+# 🎨 DriveWise Frontend
 
 ## Next.js 15 + React 19 + TypeScript + Tailwind CSS
 
 ### Overview
-The frontend application for Drive Wise, built for the Toyota Financial Services hackathon. Features a modern, responsive UI with real-time financial calculations and vehicle comparisons.
+The frontend application for DriveWise, built for the Toyota Financial Services hackathon. Features a modern, responsive UI with real-time financial calculations and vehicle comparisons.
 
 ---
 
@@ -189,4 +189,4 @@ Optimized with Next.js image optimization and code splitting.
 
 ---
 
-*Part of Drive Wise - Toyota Financial Services Hackathon*
+*Part of DriveWise - Toyota Financial Services Hackathon*
