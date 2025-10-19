@@ -116,6 +116,41 @@ app.get('/api/nessie/customers/:customerId/financial-profile', async (req: Reque
   }
 });
 
+// Get all users with their financial profiles (ADMIN)
+app.get('/api/admin/customers', async (req: Request, res: Response) => {
+  try {
+    const customers = await getCustomers();
+    
+    // Get financial profile for each customer
+    const customersWithProfiles = await Promise.all(
+      customers.map(async (customer: any) => {
+        try {
+          const accounts = await getAccounts(customer._id);
+          const { generateFinancialProfile } = await import('./api/nessie');
+          const profile = generateFinancialProfile(customer, accounts);
+          
+          return {
+            ...customer,
+            financialProfile: profile,
+            accountCount: accounts.length
+          };
+        } catch (error) {
+          return {
+            ...customer,
+            financialProfile: null,
+            accountCount: 0
+          };
+        }
+      })
+    );
+    
+    res.json(customersWithProfiles);
+  } catch (error: any) {
+    console.error('Admin Customers Error:', error);
+    res.status(500).json({ error: 'Failed to fetch customers', message: error.message });
+  }
+});
+
 // 404 handler
 app.use((req: Request, res: Response) => {
   res.status(404).json({
