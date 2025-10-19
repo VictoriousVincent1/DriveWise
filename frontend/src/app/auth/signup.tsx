@@ -10,6 +10,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
+  const [wantsDealer, setWantsDealer] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -19,21 +20,26 @@ export default function SignupPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      if (role === "dealer-employee") {
-        // Save dealer employee info to 'dealers' collection
+      if (role === "dealer-employee" || wantsDealer) {
+        // Save to both collections with dealer role for consistency
+        await setDoc(doc(db, "users", user.uid), {
+          email,
+          role: "dealer-employee",
+          createdAt: new Date().toISOString(),
+        }, { merge: true });
         await setDoc(doc(db, "dealers", user.uid), {
           email,
-          role,
+          role: "dealer-employee",
           createdAt: new Date().toISOString(),
-        });
+        }, { merge: true });
         router.push("/dealer-employee");
       } else {
         // Save user info to 'users' collection
         await setDoc(doc(db, "users", user.uid), {
           email,
-          role,
+          role: "user",
           createdAt: new Date().toISOString(),
-        });
+        }, { merge: true });
         router.push("/profile");
       }
     } catch (err: any) {
@@ -46,15 +52,23 @@ export default function SignupPage() {
     try {
       const cred = await signInWithPopup(auth, new GoogleAuthProvider());
       const user = cred.user;
-      // If a dealer doc exists, go to dealer dashboard
       const dealerRef = doc(db, "dealers", user.uid);
+      const userRef = doc(db, "users", user.uid);
+
+      if (wantsDealer || role === "dealer-employee") {
+        await setDoc(userRef, { email: user.email ?? "", role: "dealer-employee", createdAt: new Date().toISOString() }, { merge: true });
+        await setDoc(dealerRef, { email: user.email ?? "", role: "dealer-employee", createdAt: new Date().toISOString() }, { merge: true });
+        router.push("/dealer-employee");
+        return;
+      }
+
+      // If a dealer doc exists, go to dealer dashboard
       const dealerSnap = await getDoc(dealerRef);
       if (dealerSnap.exists()) {
         router.push("/dealer-employee");
         return;
       }
       // Ensure a users doc exists with default role
-      const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
       if (!userSnap.exists()) {
         await setDoc(userRef, { email: user.email ?? "", role: "user", createdAt: new Date().toISOString() }, { merge: true });
@@ -83,6 +97,10 @@ export default function SignupPage() {
             <option value="user">Customer/User</option>
             <option value="dealer-employee">Dealership Employee</option>
           </select>
+          <div className="flex items-center gap-2 mt-2">
+            <input id="wantsDealer" type="checkbox" checked={wantsDealer} onChange={e => setWantsDealer(e.target.checked)} />
+            <label htmlFor="wantsDealer" className="text-sm">I work at a dealership (applies to Google sign up too)</label>
+          </div>
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Sign Up</button>

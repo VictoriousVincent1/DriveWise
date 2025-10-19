@@ -1,44 +1,50 @@
 "use client";
 import { useState } from "react";
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../../lib/firebase";
+import { auth, db } from "../../../lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [wantsDealer, setWantsDealer] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    console.log("Attempting login with:", email);
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Login successful, user:", userCred.user.uid);
-      
-      // Try to check if user has completed profile setup
-      try {
-        const { getDoc, doc } = await import("firebase/firestore");
-        const { db } = await import("../../../lib/firebase");
-        const snap = await getDoc(doc(db, "users", userCred.user.uid));
-        console.log("Profile data:", snap.exists() ? snap.data() : "No profile found");
-        
-        if (snap.exists() && snap.data()?.profileCompleted) {
-          console.log("Redirecting to /user");
-          router.push("/user");
-        } else {
-          console.log("Redirecting to /profile");
-          router.push("/profile");
-        }
-      } catch (firestoreErr: any) {
-        console.warn("Firestore check failed (offline?), defaulting to /profile:", firestoreErr.message);
-        // If Firestore fails (offline), send to profile to be safe
-        router.push("/profile");
+      const user = userCred.user;
+
+      const userRef = doc(db, "users", user.uid);
+      const dealerRef = doc(db, "dealers", user.uid);
+
+      if (wantsDealer) {
+        // Mark role as dealer and ensure dealer doc exists
+        await setDoc(userRef, { email: user.email ?? "", role: "dealer-employee", updatedAt: Date.now() }, { merge: true });
+        await setDoc(dealerRef, { email: user.email ?? "", role: "dealer-employee", updatedAt: Date.now() }, { merge: true });
+        router.push("/dealer-employee");
+        return;
       }
+
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const data = userSnap.data() as any;
+        router.push(data.role === "dealer-employee" ? "/dealer-employee" : "/profile");
+        return;
+      }
+      const dealerSnap = await getDoc(dealerRef);
+      if (dealerSnap.exists()) {
+        router.push("/dealer-employee");
+        return;
+      }
+      // Default: create user doc and go to profile
+      await setDoc(userRef, { email: user.email ?? "", role: "user", createdAt: Date.now() }, { merge: true });
+      router.push("/profile");
     } catch (err: any) {
-      console.error("Login error:", err);
       setError(err.message);
     }
   };
@@ -46,17 +52,31 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     setError("");
     try {
-      const userCred = await signInWithPopup(auth, new GoogleAuthProvider());
-      // Check if user has completed profile setup
-      const { getDoc, doc } = await import("firebase/firestore");
-      const { db } = await import("../../../lib/firebase");
-      const snap = await getDoc(doc(db, "users", userCred.user.uid));
-      
-      if (snap.exists() && snap.data()?.profileCompleted) {
-        router.push("/user");
-      } else {
-        router.push("/profile");
+      const cred = await signInWithPopup(auth, new GoogleAuthProvider());
+      const user = cred.user;
+      const userRef = doc(db, "users", user.uid);
+      const dealerRef = doc(db, "dealers", user.uid);
+
+      if (wantsDealer) {
+        await setDoc(userRef, { email: user.email ?? "", role: "dealer-employee", updatedAt: Date.now() }, { merge: true });
+        await setDoc(dealerRef, { email: user.email ?? "", role: "dealer-employee", updatedAt: Date.now() }, { merge: true });
+        router.push("/dealer-employee");
+        return;
       }
+
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const data = userSnap.data() as any;
+        router.push(data.role === "dealer-employee" ? "/dealer-employee" : "/profile");
+        return;
+      }
+      const dealerSnap = await getDoc(dealerRef);
+      if (dealerSnap.exists()) {
+        router.push("/dealer-employee");
+        return;
+      }
+      await setDoc(userRef, { email: user.email ?? "", role: "user", createdAt: Date.now() }, { merge: true });
+      router.push("/profile");
     } catch (err: any) {
       setError(err.message);
     }
@@ -73,6 +93,10 @@ export default function LoginPage() {
         <div>
           <label className="block mb-1">Password</label>
           <input type="password" className="w-full border rounded px-2 py-1" value={password} onChange={e => setPassword(e.target.value)} required />
+        </div>
+        <div className="flex items-center gap-2">
+          <input id="wantsDealer" type="checkbox" checked={wantsDealer} onChange={e => setWantsDealer(e.target.checked)} />
+          <label htmlFor="wantsDealer" className="text-sm">I work at a dealership</label>
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Sign In</button>

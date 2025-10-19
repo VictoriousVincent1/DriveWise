@@ -1,12 +1,15 @@
 "use client";
 import { useState } from "react";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../../lib/firebase";
+import { auth, db } from "../../../lib/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
+  const [wantsDealer, setWantsDealer] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
 
@@ -14,9 +17,17 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // New users always go to profile to complete setup
-      router.push("/profile");
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const user = cred.user;
+      if (role === "dealer-employee" || wantsDealer) {
+        // Create both docs, mark dealer role
+        await setDoc(doc(db, "users", user.uid), { email, role: "dealer-employee", createdAt: Date.now() }, { merge: true });
+        await setDoc(doc(db, "dealers", user.uid), { email, role: "dealer-employee", createdAt: Date.now() }, { merge: true });
+        router.push("/dealer-employee");
+      } else {
+        await setDoc(doc(db, "users", user.uid), { email, role: "user", createdAt: Date.now() }, { merge: true });
+        router.push("/profile");
+      }
     } catch (err: any) {
       setError(err.message);
     }
@@ -25,17 +36,26 @@ export default function SignupPage() {
   const handleGoogle = async () => {
     setError("");
     try {
-      const userCred = await signInWithPopup(auth, new GoogleAuthProvider());
-      // Check if user has completed profile setup
-      const { getDoc, doc } = await import("firebase/firestore");
-      const { db } = await import("../../../lib/firebase");
-      const snap = await getDoc(doc(db, "users", userCred.user.uid));
-      
-      if (snap.exists() && snap.data()?.profileCompleted) {
-        router.push("/user");
-      } else {
-        router.push("/profile");
+      const cred = await signInWithPopup(auth, new GoogleAuthProvider());
+      const user = cred.user;
+      const userRef = doc(db, "users", user.uid);
+      const dealerRef = doc(db, "dealers", user.uid);
+      if (role === "dealer-employee" || wantsDealer) {
+        await setDoc(userRef, { email: user.email ?? "", role: "dealer-employee", createdAt: Date.now() }, { merge: true });
+        await setDoc(dealerRef, { email: user.email ?? "", role: "dealer-employee", createdAt: Date.now() }, { merge: true });
+        router.push("/dealer-employee");
+        return;
       }
+      const dealerSnap = await getDoc(dealerRef);
+      if (dealerSnap.exists()) {
+        router.push("/dealer-employee");
+        return;
+      }
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        await setDoc(userRef, { email: user.email ?? "", role: "user", createdAt: Date.now() }, { merge: true });
+      }
+      router.push("/profile");
     } catch (err: any) {
       setError(err.message);
     }
@@ -52,6 +72,17 @@ export default function SignupPage() {
         <div>
           <label className="block mb-1">Password</label>
           <input type="password" className="w-full border rounded px-2 py-1" value={password} onChange={e => setPassword(e.target.value)} required />
+        </div>
+        <div>
+          <label className="block mb-1">Sign up as</label>
+          <select className="w-full border rounded px-2 py-1" value={role} onChange={e => setRole(e.target.value)}>
+            <option value="user">Customer/User</option>
+            <option value="dealer-employee">Dealership Employee</option>
+          </select>
+          <div className="flex items-center gap-2 mt-2">
+            <input id="wantsDealer" type="checkbox" checked={wantsDealer} onChange={e => setWantsDealer(e.target.checked)} />
+            <label htmlFor="wantsDealer" className="text-sm">I work at a dealership (applies to Google sign up too)</label>
+          </div>
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Sign Up</button>

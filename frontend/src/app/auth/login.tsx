@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [wantsDealer, setWantsDealer] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -18,21 +19,30 @@ export default function LoginPage() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      // Look up role
       const userRef = doc(db, "users", user.uid);
+      const dealerRef = doc(db, "dealers", user.uid);
+
+      if (wantsDealer) {
+        // Explicitly mark this account as dealer and redirect
+        await setDoc(userRef, { email: user.email ?? "", role: "dealer-employee", updatedAt: Date.now() }, { merge: true });
+        await setDoc(dealerRef, { email: user.email ?? "", role: "dealer-employee", updatedAt: Date.now() }, { merge: true });
+        router.push("/dealer-employee");
+        return;
+      }
+
+      // Look up existing role
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         const data = userSnap.data() as any;
         router.push(data.role === "dealer-employee" ? "/dealer-employee" : "/profile");
         return;
       }
-      const dealerRef = doc(db, "dealers", user.uid);
       const dealerSnap = await getDoc(dealerRef);
       if (dealerSnap.exists()) {
         router.push("/dealer-employee");
         return;
       }
-      // If no doc found, create a default user profile entry
+      // Default new login to user
       await setDoc(userRef, { email: user.email ?? "", role: "user", createdAt: Date.now() }, { merge: true });
       router.push("/profile");
     } catch (err: any) {
@@ -46,13 +56,21 @@ export default function LoginPage() {
       const cred = await signInWithPopup(auth, new GoogleAuthProvider());
       const user = cred.user;
       const userRef = doc(db, "users", user.uid);
+      const dealerRef = doc(db, "dealers", user.uid);
+
+      if (wantsDealer) {
+        await setDoc(userRef, { email: user.email ?? "", role: "dealer-employee", updatedAt: Date.now() }, { merge: true });
+        await setDoc(dealerRef, { email: user.email ?? "", role: "dealer-employee", updatedAt: Date.now() }, { merge: true });
+        router.push("/dealer-employee");
+        return;
+      }
+
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         const data = userSnap.data() as any;
         router.push(data.role === "dealer-employee" ? "/dealer-employee" : "/profile");
         return;
       }
-      const dealerRef = doc(db, "dealers", user.uid);
       const dealerSnap = await getDoc(dealerRef);
       if (dealerSnap.exists()) {
         router.push("/dealer-employee");
@@ -77,6 +95,10 @@ export default function LoginPage() {
         <div>
           <label className="block mb-1">Password</label>
           <input type="password" className="w-full border rounded px-2 py-1" value={password} onChange={e => setPassword(e.target.value)} required />
+        </div>
+        <div className="flex items-center gap-2">
+          <input id="wantsDealer" type="checkbox" checked={wantsDealer} onChange={e => setWantsDealer(e.target.checked)} />
+          <label htmlFor="wantsDealer" className="text-sm">I work at a dealership</label>
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">Sign In</button>

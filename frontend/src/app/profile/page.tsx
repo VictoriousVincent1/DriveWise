@@ -4,6 +4,8 @@ import { onAuthStateChanged, signOut, updateProfile } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import DealerAutocomplete from "@/components/dealers/DealerAutocomplete";
+import AvailabilityManager, { WeeklyAvailability } from "@/components/dealers/AvailabilityManager";
 
 const priorities = [
   "Cost",
@@ -26,7 +28,10 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [zipcode, setZipcode] = useState("");
   const [dealership, setDealership] = useState("");
+  const [dealershipId, setDealershipId] = useState("");
+  const [dealerZip, setDealerZip] = useState("");
   const [years, setYears] = useState("");
+  const [availability, setAvailability] = useState<WeeklyAvailability>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [editField, setEditField] = useState<string|null>(null);
@@ -41,25 +46,33 @@ export default function ProfilePage() {
       }
       setUser(u);
       setDisplayName(u?.displayName || "");
-      // Try to load user profile from 'users' collection
-      let snap = await getDoc(doc(db, "users", u.uid));
-      let data = snap.exists() ? snap.data() : null;
-      if (data) {
-        setRole(data.role || "user");
-        setCarNeeds(data.carNeeds || "");
-        setSelectedPriorities(data.priorities || []);
-        setPhone(data.phone || "");
-        setZipcode(data.zipcode || "");
-      } else {
-        // Try to load dealer profile from 'dealers' collection
-        snap = await getDoc(doc(db, "dealers", u.uid));
-        data = snap.exists() ? snap.data() : null;
-        if (data) {
+      
+      // Check users collection first to determine role
+      let userSnap = await getDoc(doc(db, "users", u.uid));
+      let userData = userSnap.exists() ? userSnap.data() : null;
+      
+      if (userData?.role === "dealer-employee") {
+        // If user is a dealer, load from dealers collection
+        const dealerSnap = await getDoc(doc(db, "dealers", u.uid));
+        const dealerData = dealerSnap.exists() ? dealerSnap.data() : null;
+        console.log("Loading dealer data:", dealerData);
+        if (dealerData) {
           setRole("dealer-employee");
-          setDisplayName(data.displayName || "");
-          setDealership(data.dealership || "");
-          setYears(data.years || "");
+          setDisplayName(dealerData.displayName || u.displayName || "");
+          setDealership(dealerData.dealership || "");
+          setDealershipId(dealerData.dealershipId || "");
+          setDealerZip(dealerData.dealerZip || "");
+          setYears(dealerData.years || "");
+          setAvailability(dealerData.availability || {});
         }
+      } else if (userData) {
+        // Regular user
+        setRole(userData.role || "user");
+        setDisplayName(userData.displayName || u.displayName || "");
+        setCarNeeds(userData.carNeeds || "");
+        setSelectedPriorities(userData.priorities || []);
+        setPhone(userData.phone || "");
+        setZipcode(userData.zipcode || "");
       }
     });
     return () => unsub();
@@ -84,13 +97,25 @@ export default function ProfilePage() {
       }
       if (user) {
         if (role === "dealer-employee") {
+          console.log("Saving dealer data:", {
+            displayName,
+            dealership,
+            dealershipId,
+            dealerZip,
+            years,
+            availability,
+          });
           await setDoc(doc(db, "dealers", user.uid), {
             displayName,
             dealership,
+            dealershipId,
+            dealerZip,
             years,
+            availability,
             email: user.email,
             updatedAt: Date.now(),
           }, { merge: true });
+          console.log("Dealer data saved successfully");
         } else {
           if (!phone || !zipcode) {
             setError("Phone number and zipcode are required to continue.");
@@ -143,20 +168,16 @@ export default function ProfilePage() {
       </div>
       {role === "dealer-employee" ? (
         <>
-          <div className="mb-4 flex items-center gap-2">
-            <label className="block mb-1">Dealership</label>
-            {editField === "dealership" ? (
-              <>
-                <input type="text" className="w-full border rounded px-2 py-1" value={tempValue} onChange={e => setTempValue(e.target.value)} placeholder="Dealership Name" />
-                <button className="ml-2 text-blue-600" onClick={() => { setDealership(tempValue); setEditField(null); }}>Save</button>
-                <button className="ml-1 text-gray-500" onClick={() => setEditField(null)}>Cancel</button>
-              </>
-            ) : (
-              <>
-                <input type="text" className="w-full border rounded px-2 py-1" value={dealership} readOnly placeholder="Dealership Name" />
-                <button className="ml-2 text-blue-600" onClick={() => { setEditField("dealership"); setTempValue(dealership); }}>Edit</button>
-              </>
-            )}
+          <div className="mb-4">
+            <DealerAutocomplete
+              value={dealershipId}
+              onChange={(id, meta) => {
+                console.log("Dealership selected:", { id, meta });
+                setDealershipId(id || "");
+                setDealership(meta?.name || "");
+                setDealerZip(meta?.zipCode || "");
+              }}
+            />
           </div>
           <div className="mb-4 flex items-center gap-2">
             <label className="block mb-1">Years of Experience</label>
@@ -172,6 +193,14 @@ export default function ProfilePage() {
                 <button className="ml-2 text-blue-600" onClick={() => { setEditField("years"); setTempValue(years); }}>Edit</button>
               </>
             )}
+          </div>
+
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold mb-2">Your Availability</h2>
+            <AvailabilityManager 
+              availability={availability} 
+              onChange={setAvailability}
+            />
           </div>
         </>
       ) : (
@@ -233,7 +262,9 @@ export default function ProfilePage() {
           )}
         </>
       )}
-      <button onClick={handleSave} className="w-full bg-blue-600 text-white py-2 rounded mt-2" disabled={saving}>{saving ? "Saving..." : "Save Profile"}</button>
+      {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
+      <button onClick={handleSave} className="w-full bg-blue-600 text-white py-2 rounded mt-4" disabled={saving}>{saving ? "Saving..." : "Save Profile"}</button>
+      <div className="text-xs text-gray-500 text-center mt-2">Remember to click "Save Profile" to save your changes</div>
       <button onClick={handleLogout} className="w-full bg-gray-200 text-gray-700 py-2 rounded mt-4">Log Out</button>
     </div>
   );
