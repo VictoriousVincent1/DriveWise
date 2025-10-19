@@ -1,6 +1,5 @@
 "use client";
 import AuthNav from "../components/AuthNav";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import GeminiChatbot from '../components/GeminiChatbot';
@@ -8,15 +7,6 @@ import { useEffect, useState } from "react";
 import { auth, db } from "../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export default function RootLayout({
   children,
@@ -50,7 +40,7 @@ export default function RootLayout({
         <meta name="description" content="Personalized financing, dealership connections, and smart trade-in tools for your next vehicle." />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+        className="antialiased bg-gray-50"
         suppressHydrationWarning
       >
         <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
