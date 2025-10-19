@@ -19,9 +19,9 @@ export default function DealerEmployeeDashboard() {
         return;
       }
       setUser(u);
-      // Check if user is a dealership employee (e.g. custom claim or role in Firestore)
-      const userDoc = await getDoc(doc(db, "users", u.uid));
-      if (!userDoc.exists() || userDoc.data().role !== "dealer-employee") {
+      // Authorize: user must exist in 'dealers' collection
+      const dealerDoc = await getDoc(doc(db, "dealers", u.uid));
+      if (!dealerDoc.exists()) {
         setError("You are not authorized to view this page.");
         setLoading(false);
         return;
