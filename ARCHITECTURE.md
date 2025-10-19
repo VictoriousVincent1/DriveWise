@@ -1,4 +1,4 @@
-# 🚗 ToyotaPath - Frontend/Backend Split Architecture
+#  ToyotaPath - Frontend/Backend Split Architecture
 
 ## Project Structure
 

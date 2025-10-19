@@ -208,7 +208,7 @@ export default function UserOverviewPage() {
           </div>
         ) : recommendations.length > 0 ? (
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">🚗 Recommended for You</h2>
+            <h2 className="text-2xl font-bold mb-4 text-gray-900"> Recommended for You</h2>
             <p className="text-gray-600 mb-6">
               Based on your financial profile, here are our top picks:
             </p>

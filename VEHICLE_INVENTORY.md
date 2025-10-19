@@ -1,4 +1,4 @@
-# 🚗 ToyotaPath Vehicle Inventory - OFFICIAL WEB SCRAPED DATA
+#  ToyotaPath Vehicle Inventory - OFFICIAL WEB SCRAPED DATA
 
 ## Complete Toyota & Lexus Lineup (2024-2026 Models)
 

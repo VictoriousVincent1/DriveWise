@@ -56,7 +56,7 @@ export default function RootLayout({
             <div className="flex items-center h-16 w-full">
               <div className="flex items-center space-x-2">
                 <Link href="/" className="flex items-center space-x-2">
-                  <span className="text-2xl">🚗</span>
+                  <span className="text-2xl"></span>
                   <span className="text-xl font-bold text-gray-900">DriveWise</span>
                 </Link>
               </div>
