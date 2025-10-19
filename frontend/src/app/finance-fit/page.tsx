@@ -1,7 +1,5 @@
 
 'use client';
-import TradeInInput from '../../components/trade-in/TradeInInput';
-import TradeInBestDeal from '../../components/trade-in/TradeInBestDeal';
 
 import { useState, useEffect } from 'react';
 import AffordabilityCalculator from '../../components/finance-fit/AffordabilityCalculator';
@@ -9,8 +7,6 @@ import { calculateMonthlyPayment, calculateTotalInterest, formatCurrency } from 
 import { calculateAffordability } from '../../lib/mockData/banking';
 
 export default function FinanceFitPage() {
-  // Trade-in state
-  const [tradeIn, setTradeIn] = useState<import('../../types').TradeInEstimate | null>(null);
   const [loading, setLoading] = useState(true);
   const [affordabilityData, setAffordabilityData] = useState<Awaited<ReturnType<typeof calculateAffordability>> | null>(null);
 
@@ -68,18 +64,7 @@ export default function FinanceFitPage() {
         </p>
       </div>
 
-      {/* Trade-In Section (removed Toyota ownership card) */}
-      <div className="mb-8">
-        <TradeInInput onSave={(vehicle, estimate) => setTradeIn(estimate)} />
-      </div>
-      {/* Best Deal Scenario factoring trade-in */}
-      <TradeInBestDeal
-        tradeIn={tradeIn}
-        downPayment={downPayment}
-        vehiclePrice={vehiclePrice}
-        loanTerm={termMonths}
-        apr={apr}
-      />
+      {/* Trade-In removed: available in Trade-In page */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Scenario Tools */}

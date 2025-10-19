@@ -6,8 +6,9 @@ import { formatCurrency, estimateTradeInDepreciation, validateVIN } from '../../
 import { auth, db } from '../../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 
-export default function TradeInCalculator() {
+export default function TradeInCalculator({ onResult }: { onResult?: (estimate: TradeInEstimate) => void }) {
   const [step, setStep] = useState<'input' | 'result'>('input');
   const [formData, setFormData] = useState({
     vin: '',
@@ -82,18 +83,20 @@ export default function TradeInCalculator() {
     };
     
     setEstimate(newEstimate);
+    if (onResult) {
+      try { onResult(newEstimate); } catch {}
+    }
     setStep('result');
 
-    // save to Firestore
+    // save to Firestore under user's trade-ins subcollection
     if (uid) {
       try {
-        const ref = doc(db, 'users', uid);
+        const tradeInRef = doc(collection(db, 'users', uid, 'trade-ins'));
         await setDoc(
-          ref,
-          { lastTradeInEstimate: newEstimate, updatedAt: serverTimestamp() },
-          { merge: true }
+          tradeInRef,
+          { ...newEstimate, createdAt: serverTimestamp() }
         );
-        console.log('Saved trade-in estimate to profile.');
+        console.log('Saved trade-in estimate to user trade-ins subcollection.');
       } catch (err) {
         console.error('Could not save trade-in estimate to Firestore', err);
       }

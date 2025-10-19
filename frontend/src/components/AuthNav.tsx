@@ -10,11 +10,12 @@ export default function AuthNav() {
     return () => unsub();
   }, []);
   if (user) {
+    const initial = user?.displayName?.[0] || user?.email?.[0] || "?";
     return (
       <div className="flex items-center space-x-4">
         <Link href="/profile" className="text-gray-700 hover:text-blue-600 font-medium flex items-center">
           <span className="inline-block w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold mr-2">
-            {user.displayName ? user.displayName[0] : user.email[0]}
+            {initial}
           </span>
           Profile
         </Link>
