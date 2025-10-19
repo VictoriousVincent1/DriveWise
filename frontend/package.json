@@ -1,7 +1,7 @@
 {
-  "name": "toyotapath-frontend",
+  "name": "drivewise-frontend",
   "version": "1.0.0",
-  "description": "ToyotaPath Frontend - Toyota Financial Services Hackathon",
+  "description": "Drive Wise Frontend - Toyota Financial Services Hackathon",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

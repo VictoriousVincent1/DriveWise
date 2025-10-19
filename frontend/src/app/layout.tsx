@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ToyotaPath - Your Smart Companion for Car Financing & Ownership",
-  description: "Personalized financing, dealership connections, and smart trade-in tools for your next Toyota.",
+  title: "Drive Wise - Your Smart Companion for Car Financing & Ownership",
+  description: "Personalized financing, dealership connections, and smart trade-in tools for your next vehicle.",
 };
 
 export default function RootLayout({
@@ -35,7 +35,7 @@ export default function RootLayout({
             <div className="flex justify-between items-center h-16">
               <Link href="/" className="flex items-center space-x-2">
                 <span className="text-2xl">🚗</span>
-                <span className="text-xl font-bold text-gray-900">ToyotaPath</span>
+                <span className="text-xl font-bold text-gray-900">Drive Wise</span>
               </Link>
               
 
@@ -65,7 +65,7 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
-                <h3 className="text-lg font-bold mb-4">ToyotaPath</h3>
+                <h3 className="text-lg font-bold mb-4">Drive Wise</h3>
                 <p className="text-gray-400 text-sm">
                   Your trusted companion for smart car financing and ownership.
                 </p>
@@ -99,7 +99,7 @@ export default function RootLayout({
               </div>
             </div>
             <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-              <p>© 2024 ToyotaPath. Built for Toyota Financial Services Hackathon.</p>
+              <p>© 2024 Drive Wise. Built for Toyota Financial Services Hackathon.</p>
             </div>
           </div>
         </footer>
