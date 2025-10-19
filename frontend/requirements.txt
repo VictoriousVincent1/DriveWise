@@ -1,0 +1,33 @@
+# Node.js projects use package.json and package-lock.json for dependencies.
+# For Python, use requirements.txt. For Node/JS, see below:
+# To install all dependencies for this project, run:
+#
+#   npm install
+#
+# This will install all dependencies listed in package.json for all developers.
+#
+# If you want to see a full list of installed versions, see package-lock.json.
+#
+# For reference, here are the main dependencies:
+#
+# Production dependencies:
+react@^19.0.0
+react-dom@^19.0.0
+next@^15.5.6
+clsx@^2.1.1
+tailwind-merge@^2.7.0
+#
+# Development dependencies:
+typescript@^5
+@types/node@^20
+@types/react@^19
+@types/react-dom@^19
+postcss@^8
+tailwindcss@^3.4.1
+eslint@^9
+eslint-config-next@^15.5.6
+#
+# To install everything, just run:
+#   npm install
+#
+# No further action needed for Node.js projects.

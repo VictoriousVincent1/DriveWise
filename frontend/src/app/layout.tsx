@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Drive Wise - Your Smart Companion for Car Financing & Ownership",
+  title: "DriveWise - Your Smart Companion for Car Financing & Ownership",
   description: "Personalized financing, dealership connections, and smart trade-in tools for your next vehicle.",
 };
 
@@ -32,13 +32,14 @@ export default function RootLayout({
       >
         <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link href="/" className="flex items-center space-x-2">
-                <span className="text-2xl">🚗</span>
-                <span className="text-xl font-bold text-gray-900">Drive Wise</span>
-              </Link>
-              
-
+            <div className="flex items-center h-16 w-full">
+              <div className="flex items-center space-x-2">
+                <Link href="/" className="flex items-center space-x-2">
+                  <span className="text-2xl">🚗</span>
+                  <span className="text-xl font-bold text-gray-900">DriveWise</span>
+                </Link>
+              </div>
+              <div className="flex-1" />
               <div className="hidden md:flex space-x-8">
                 <Link href="/finance-fit" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">
                   Finance Fit
@@ -50,11 +51,9 @@ export default function RootLayout({
                   Trade-In
                 </Link>
               </div>
-
-              <AuthNav />
-// --- Add this at the top ---
-
-
+              <div className="flex items-center ml-6">
+                <AuthNav />
+              </div>
             </div>
           </div>
         </nav>
@@ -65,7 +64,7 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div>
-                <h3 className="text-lg font-bold mb-4">Drive Wise</h3>
+                <h3 className="text-lg font-bold mb-4">DriveWise</h3>
                 <p className="text-gray-400 text-sm">
                   Your trusted companion for smart car financing and ownership.
                 </p>
@@ -99,7 +98,7 @@ export default function RootLayout({
               </div>
             </div>
             <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-              <p>© 2024 Drive Wise. Built for Toyota Financial Services Hackathon.</p>
+              <p>© 2024 DriveWise. Built for Toyota Financial Services Hackathon.</p>
             </div>
           </div>
         </footer>

@@ -22,8 +22,12 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState("");
   const [carNeeds, setCarNeeds] = useState("");
   const [selectedPriorities, setSelectedPriorities] = useState<string[]>([]);
+  const [phone, setPhone] = useState("");
+  const [zipcode, setZipcode] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [editField, setEditField] = useState<string|null>(null);
+  const [tempValue, setTempValue] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
@@ -43,11 +47,10 @@ export default function ProfilePage() {
         const data = snap.data() as any;
         setCarNeeds(data.carNeeds || "");
         setSelectedPriorities(data.priorities || []);
-        
-        // If profile is already completed, redirect to user page
-        if (data.profileCompleted) {
-          router.push("/user");
-        }
+        setPhone(data.phone || "");
+        setZipcode(data.zipcode || "");
+        // Only allow navigation if required info is present
+        // If missing, stay on profile page
       }
     });
     return () => unsub();
@@ -64,6 +67,10 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
+    if (!phone || !zipcode) {
+      setError("Phone number and zipcode are required to continue.");
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -76,7 +83,9 @@ export default function ProfilePage() {
           email: user.email,
           carNeeds,
           priorities: selectedPriorities,
-          profileCompleted: true,
+          phone,
+          zipcode,
+          profileCompleted: !!phone && !!zipcode,
           updatedAt: Date.now(),
         }, { merge: true });
       }
@@ -97,9 +106,50 @@ export default function ProfilePage() {
   return (
     <div className="max-w-lg mx-auto mt-12 bg-white p-8 rounded shadow">
       <h1 className="text-2xl font-bold mb-6">Your Profile</h1>
-      <div className="mb-4">
+      <div className="mb-4 flex items-center gap-2">
         <label className="block mb-1">Name</label>
-        <input type="text" className="w-full border rounded px-2 py-1" value={displayName} onChange={e => setDisplayName(e.target.value)} />
+        {editField === "name" ? (
+          <>
+            <input type="text" className="w-full border rounded px-2 py-1" value={tempValue} onChange={e => setTempValue(e.target.value)} />
+            <button className="ml-2 text-blue-600" onClick={() => { setDisplayName(tempValue); setEditField(null); }}>Save</button>
+            <button className="ml-1 text-gray-500" onClick={() => setEditField(null)}>Cancel</button>
+          </>
+        ) : (
+          <>
+            <input type="text" className="w-full border rounded px-2 py-1" value={displayName} readOnly />
+            <button className="ml-2 text-blue-600" onClick={() => { setEditField("name"); setTempValue(displayName); }}>Edit</button>
+          </>
+        )}
+      </div>
+      <div className="mb-4 flex items-center gap-2">
+        <label className="block mb-1">Phone Number</label>
+        {editField === "phone" ? (
+          <>
+            <input type="tel" className="w-full border rounded px-2 py-1" value={tempValue} onChange={e => setTempValue(e.target.value)} placeholder="e.g. 555-123-4567" />
+            <button className="ml-2 text-blue-600" onClick={() => { setPhone(tempValue); setEditField(null); }}>Save</button>
+            <button className="ml-1 text-gray-500" onClick={() => setEditField(null)}>Cancel</button>
+          </>
+        ) : (
+          <>
+            <input type="tel" className="w-full border rounded px-2 py-1" value={phone} readOnly placeholder="e.g. 555-123-4567" />
+            <button className="ml-2 text-blue-600" onClick={() => { setEditField("phone"); setTempValue(phone); }}>Edit</button>
+          </>
+        )}
+      </div>
+      <div className="mb-4 flex items-center gap-2">
+        <label className="block mb-1">Zipcode</label>
+        {editField === "zipcode" ? (
+          <>
+            <input type="text" className="w-full border rounded px-2 py-1" value={tempValue} onChange={e => setTempValue(e.target.value)} placeholder="e.g. 90210" />
+            <button className="ml-2 text-blue-600" onClick={() => { setZipcode(tempValue); setEditField(null); }}>Save</button>
+            <button className="ml-1 text-gray-500" onClick={() => setEditField(null)}>Cancel</button>
+          </>
+        ) : (
+          <>
+            <input type="text" className="w-full border rounded px-2 py-1" value={zipcode} readOnly placeholder="e.g. 90210" />
+            <button className="ml-2 text-blue-600" onClick={() => { setEditField("zipcode"); setTempValue(zipcode); }}>Edit</button>
+          </>
+        )}
       </div>
       <div className="mb-4">
         <label className="block mb-1">What are you looking for in a car?</label>
@@ -123,6 +173,9 @@ export default function ProfilePage() {
         <div className="text-xs text-gray-500 mt-1">Choose up to 3 priorities.</div>
       </div>
       {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
+      {(!phone || !zipcode) && (
+        <div className="text-red-600 text-sm mt-4">Phone number and zipcode are required to continue. Please fill them in above.</div>
+      )}
       <button onClick={handleSave} className="w-full bg-blue-600 text-white py-2 rounded mt-2" disabled={saving}>{saving ? "Saving..." : "Save Profile"}</button>
       <button onClick={handleLogout} className="w-full bg-gray-200 text-gray-700 py-2 rounded mt-4">Log Out</button>
     </div>
