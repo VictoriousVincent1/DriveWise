@@ -46,7 +46,7 @@ export default function RootLayout({
 
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>DriveWise - Your Smart Companion for Car Financing & Ownership</title>
+  <title>DriveWise - Your Smart Companion for Car Financing</title>
         <meta name="description" content="Personalized financing, dealership connections, and smart trade-in tools for your next vehicle." />
       </head>
       <body
@@ -109,7 +109,7 @@ export default function RootLayout({
               <div>
                 <h3 className="text-lg font-bold mb-4">DriveWise</h3>
                 <p className="text-gray-400 text-sm">
-                  Your trusted companion for smart car financing and ownership.
+                  Your trusted companion for smart car financing.
                 </p>
               </div>
               <div>
