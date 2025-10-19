@@ -5,10 +5,13 @@ import { auth } from "../../../lib/firebase";
 import { useRouter } from "next/navigation";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
+import { createCustomer as apiCreateCustomer, createAccount as apiCreateAccount } from "../../../lib/api";
+import DealerAutocomplete from "@/components/dealers/DealerAutocomplete";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"user" | "dealer">("user");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [streetNumber, setStreetNumber] = useState("");
@@ -16,8 +19,13 @@ export default function SignupPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zip, setZip] = useState("");
+  // Dealer-only inputs
+  const [dealershipId, setDealershipId] = useState("");
+  const [dealershipName, setDealershipName] = useState("");
+  const [dealerZip, setDealerZip] = useState("");
+  const [years, setYears] = useState("");
   
-  // Financial data inputs
+  // Financial data inputs (customer only)
   const [creditScore, setCreditScore] = useState("");
   const [monthlyIncome, setMonthlyIncome] = useState("");
   const [monthlyDebt, setMonthlyDebt] = useState("");
@@ -33,24 +41,25 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      // Validate financial inputs
-      const creditScoreNum = parseInt(creditScore);
-      const monthlyIncomeNum = parseFloat(monthlyIncome);
-      const monthlyDebtNum = parseFloat(monthlyDebt);
-      const savingsBalanceNum = parseFloat(savingsBalance);
-
-      if (creditScoreNum < 300 || creditScoreNum > 850) {
-        throw new Error("Credit score must be between 300 and 850");
+      // Validate inputs
+      let creditScoreNum = 0, monthlyIncomeNum = 0, monthlyDebtNum = 0, savingsBalanceNum = 0;
+      if (role === "user") {
+        creditScoreNum = parseInt(creditScore);
+        monthlyIncomeNum = parseFloat(monthlyIncome);
+        monthlyDebtNum = parseFloat(monthlyDebt);
+        savingsBalanceNum = parseFloat(savingsBalance);
+        if (creditScoreNum < 300 || creditScoreNum > 850) {
+          throw new Error("Credit score must be between 300 and 850");
+        }
       }
 
       // 1. Create Firebase user
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       
-      // 2. Create Nessie customer
-      const nessieResponse = await fetch('http://localhost:5001/api/nessie/customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      let nessieCustomerId: string | null = null;
+      if (role === "user") {
+        // 2. Create Nessie customer via backend API helper (respects NEXT_PUBLIC_API_URL)
+        const nessieData = await apiCreateCustomer({
           first_name: firstName,
           last_name: lastName,
           address: {
@@ -60,74 +69,87 @@ export default function SignupPage() {
             state: state,
             zip: zip
           }
-        })
-      });
-
-      if (!nessieResponse.ok) {
-        throw new Error('Failed to create Nessie customer');
-      }
-
-      const nessieData = await nessieResponse.json();
-      const nessieCustomerId = nessieData.objectCreated._id;
-
-      // 3. Create a bank account with user's savings balance
-      await fetch(`http://localhost:5001/api/nessie/customers/${nessieCustomerId}/accounts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        });
+        // Handle both possible response shapes
+        nessieCustomerId = (nessieData && (nessieData.objectCreated?._id || nessieData._id || nessieData.id)) as string;
+        if (!nessieCustomerId) {
+          throw new Error("Failed to retrieve Nessie customer ID");
+        }
+        // 3. Create a bank account with user's savings balance using API helper
+        await apiCreateAccount(nessieCustomerId, {
           type: 'Checking',
           nickname: `${firstName}'s Checking`,
           rewards: 0,
           balance: savingsBalanceNum
-        })
-      });
-
-      // 4. Calculate financial metrics
-      const debtToIncomeRatio = monthlyDebtNum / monthlyIncomeNum;
-      
-      // Max loan: 25% of monthly income for 60 months (5 years)
-      const maxLoanAmount = Math.floor(monthlyIncomeNum * 0.25 * 60);
-      
-      // Approval likelihood based on credit score and DTI
-      let approvalLikelihood = 'Low';
-      if (creditScoreNum >= 700 && debtToIncomeRatio <= 0.35) {
-        approvalLikelihood = 'High';
-      } else if (creditScoreNum >= 650 && debtToIncomeRatio <= 0.43) {
-        approvalLikelihood = 'Medium';
+        });
       }
 
-      // 5. Save to Firebase Firestore with all financial data
-      await setDoc(doc(db, "users", userCred.user.uid), {
-        email: email,
-        displayName: `${firstName} ${lastName}`,
-        firstName: firstName,
-        lastName: lastName,
-        address: {
-          street_number: streetNumber,
-          street_name: streetName,
-          city: city,
-          state: state,
-          zip: zip
-        },
-        nessieCustomerId: nessieCustomerId,
-        
-        // User-provided financial data
-        financialData: {
-          creditScore: creditScoreNum,
-          monthlyIncome: monthlyIncomeNum,
-          monthlyDebt: monthlyDebtNum,
-          savingsBalance: savingsBalanceNum,
-          debtToIncomeRatio: debtToIncomeRatio,
-          approvalLikelihood: approvalLikelihood,
-          maxLoanAmount: maxLoanAmount
-        },
-        
-        profileCompleted: true,
-        createdAt: new Date()
-      });
+      // 4. Calculate financial metrics (customer only)
+      let debtToIncomeRatio = 0;
+      let maxLoanAmount = 0;
+      let approvalLikelihood: 'Low' | 'Medium' | 'High' = 'Low';
+      if (role === 'user') {
+        debtToIncomeRatio = monthlyDebtNum / monthlyIncomeNum;
+        maxLoanAmount = Math.floor(monthlyIncomeNum * 0.25 * 60);
+        if (creditScoreNum >= 700 && debtToIncomeRatio <= 0.35) {
+          approvalLikelihood = 'High';
+        } else if (creditScoreNum >= 650 && debtToIncomeRatio <= 0.43) {
+          approvalLikelihood = 'Medium';
+        }
+      }
 
-      // Success! Redirect to user dashboard
-      router.push("/user");
+      if (role === 'dealer') {
+        // Save minimal user entry with role for completeness
+        await setDoc(doc(db, 'users', userCred.user.uid), {
+          email,
+          displayName: `${firstName} ${lastName}`,
+          role: 'dealer-employee',
+          createdAt: new Date()
+        }, { merge: true });
+        // Create dealer record
+        await setDoc(doc(db, 'dealers', userCred.user.uid), {
+          displayName: `${firstName} ${lastName}`,
+          email,
+          dealership: dealershipName,
+          dealershipId,
+          dealerZip,
+          years,
+          availability: {},
+          createdAt: Date.now()
+        }, { merge: true });
+      } else {
+        // 5. Save to Firebase Firestore with all financial data
+        await setDoc(doc(db, "users", userCred.user.uid), {
+          email: email,
+          displayName: `${firstName} ${lastName}`,
+          firstName: firstName,
+          lastName: lastName,
+          address: {
+            street_number: streetNumber,
+            street_name: streetName,
+            city: city,
+            state: state,
+            zip: zip
+          },
+          nessieCustomerId: nessieCustomerId,
+          // User-provided financial data
+          financialData: {
+            creditScore: creditScoreNum,
+            monthlyIncome: monthlyIncomeNum,
+            monthlyDebt: monthlyDebtNum,
+            savingsBalance: savingsBalanceNum,
+            debtToIncomeRatio: debtToIncomeRatio,
+            approvalLikelihood: approvalLikelihood,
+            maxLoanAmount: maxLoanAmount
+          },
+          role: 'user',
+          profileCompleted: true,
+          createdAt: new Date()
+        });
+      }
+
+  // Success! Redirect to proper dashboard
+  router.push(role === 'dealer' ? "/dealer-employee" : "/user");
     } catch (err: any) {
       console.error("Signup error:", err);
       setError(err.message);
@@ -157,7 +179,24 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold mb-6 text-gray-900">Create Your Account</h1>
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">Create Your Account</h1>
+        <div className="mb-6 flex items-center gap-2">
+          <span className="text-sm text-gray-700">I am signing up as:</span>
+          <button
+            type="button"
+            onClick={() => setRole('user')}
+            className={`px-3 py-1 rounded-full text-sm border ${role === 'user' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
+          >
+            Customer
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole('dealer')}
+            className={`px-3 py-1 rounded-full text-sm border ${role === 'dealer' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
+          >
+            Dealer Employee
+          </button>
+        </div>
         
         <form onSubmit={handleSignup} className="space-y-6">
           {/* Account Info */}
@@ -277,83 +316,109 @@ export default function SignupPage() {
             </div>
           </div>
 
-          {/* Financial Information */}
-          <div className="border-t border-gray-200 pt-6">
-            <h2 className="text-xl font-semibold mb-3 text-gray-900">Financial Information</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              This helps us provide personalized financing options for your vehicle purchase.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block mb-1 font-medium text-gray-900">Credit Score</label>
-                <input 
-                  type="number" 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                  value={creditScore} 
-                  onChange={e => setCreditScore(e.target.value)} 
-                  placeholder="e.g., 720"
-                  min="300"
-                  max="850"
-                  required 
+          {/* Conditional Section */}
+          {role === 'dealer' ? (
+            <div className="border-t border-gray-200 pt-6">
+              <h2 className="text-xl font-semibold mb-3 text-gray-900">Dealer Employee Information</h2>
+              <div className="mb-4">
+                <DealerAutocomplete
+                  value={dealershipId}
+                  onChange={(id, meta) => {
+                    setDealershipId(id || "");
+                    setDealershipName(meta?.name || "");
+                    setDealerZip(meta?.zipCode || "");
+                  }}
                 />
-                <p className="text-xs text-gray-500 mt-1">Range: 300-850</p>
               </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-gray-900">Monthly Income</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                  <input 
-                    type="number" 
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pl-6 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                    value={monthlyIncome} 
-                    onChange={e => setMonthlyIncome(e.target.value)} 
-                    placeholder="e.g., 5000"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-1 font-medium text-gray-900">Years of Experience</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={years}
+                    onChange={e => setYears(e.target.value)}
+                    placeholder="e.g., 5"
                     min="0"
-                    step="0.01"
-                    required 
                   />
                 </div>
               </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-gray-900">Monthly Debt Payments</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+              <p className="text-xs text-gray-500 mt-2">You'll be able to set your weekly availability after signup.</p>
+            </div>
+          ) : (
+            <div className="border-t border-gray-200 pt-6">
+              <h2 className="text-xl font-semibold mb-3 text-gray-900">Financial Information</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                This helps us provide personalized financing options for your vehicle purchase.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-1 font-medium text-gray-900">Credit Score</label>
                   <input 
                     type="number" 
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pl-6 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                    value={monthlyDebt} 
-                    onChange={e => setMonthlyDebt(e.target.value)} 
-                    placeholder="e.g., 800"
-                    min="0"
-                    step="0.01"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                    value={creditScore} 
+                    onChange={e => setCreditScore(e.target.value)} 
+                    placeholder="e.g., 720"
+                    min="300"
+                    max="850"
                     required 
                   />
+                  <p className="text-xs text-gray-500 mt-1">Range: 300-850</p>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Include rent, loans, credit cards, etc.</p>
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-gray-900">Savings/Checking Balance</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">$</span>
-                  <input 
-                    type="number" 
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pl-6 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
-                    value={savingsBalance} 
-                    onChange={e => setSavingsBalance(e.target.value)} 
-                    placeholder="e.g., 10000"
-                    min="0"
-                    step="0.01"
-                    required 
-                  />
+                <div>
+                  <label className="block mb-1 font-medium text-gray-900">Monthly Income</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                    <input 
+                      type="number" 
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 pl-6 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                      value={monthlyIncome} 
+                      onChange={e => setMonthlyIncome(e.target.value)} 
+                      placeholder="e.g., 5000"
+                      min="0"
+                      step="0.01"
+                      required 
+                    />
+                  </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Available for down payment</p>
+                <div>
+                  <label className="block mb-1 font-medium text-gray-900">Monthly Debt Payments</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                    <input 
+                      type="number" 
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 pl-6 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                      value={monthlyDebt} 
+                      onChange={e => setMonthlyDebt(e.target.value)} 
+                      placeholder="e.g., 800"
+                      min="0"
+                      step="0.01"
+                      required 
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Include rent, loans, credit cards, etc.</p>
+                </div>
+                <div>
+                  <label className="block mb-1 font-medium text-gray-900">Savings/Checking Balance</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-gray-500">$</span>
+                    <input 
+                      type="number" 
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 pl-6 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                      value={savingsBalance} 
+                      onChange={e => setSavingsBalance(e.target.value)} 
+                      placeholder="e.g., 10000"
+                      min="0"
+                      step="0.01"
+                      required 
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Available for down payment</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200">{error}</div>}
           

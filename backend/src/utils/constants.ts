@@ -1,5 +1,5 @@
 // App-wide constants
-export const APP_NAME = 'ToyotaPath';
+export const APP_NAME = 'DriveWise';
 export const APP_TAGLINE = 'Your Smart Companion for Car Financing & Ownership';
 
 // API Configuration

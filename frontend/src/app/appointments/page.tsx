@@ -117,6 +117,44 @@ export default function AppointmentBookingPage() {
     if (!selectedDealershipId) { setError("Please select a dealership."); return; }
     try {
       setSaving(true);
+      // Pull a small snapshot of the user's profile and financial data to embed on the appointment
+      let userSummary: any = null;
+      let financialSnapshot: any = null;
+      let savedCars: any[] = [];
+      try {
+        const uDoc = await getDoc(doc(db, 'users', user.uid));
+        if (uDoc.exists()) {
+          const uData: any = uDoc.data();
+          userSummary = {
+            displayName: uData.displayName || user.displayName || null,
+            email: uData.email || user.email || null,
+            phone: uData.phone || null,
+            zipcode: uData.zipcode || uData.zip || uData.address?.zip || null,
+          };
+          if (uData.financialProfile) {
+            const f = uData.financialProfile;
+            financialSnapshot = {
+              creditScore: f.creditScore,
+              monthlyIncome: f.monthlyIncome,
+              debtToIncomeRatio: f.debtToIncomeRatio,
+              maxLoanAmount: f.maxLoanAmount,
+              approvalLikelihood: f.approvalLikelihood,
+            };
+          } else if (uData.financialData) {
+            const f = uData.financialData;
+            financialSnapshot = {
+              creditScore: f.creditScore,
+              monthlyIncome: f.monthlyIncome,
+              debtToIncomeRatio: f.debtToIncomeRatio,
+              maxLoanAmount: f.maxLoanAmount,
+              approvalLikelihood: f.approvalLikelihood,
+            };
+          }
+          if (Array.isArray(uData.savedCars)) {
+            savedCars = uData.savedCars.slice(0, 6);
+          }
+        }
+      } catch {}
       await addDoc(collection(db, "appointments"), {
         userId: user.uid,
         dealerId: dealerId || null,
@@ -124,6 +162,9 @@ export default function AppointmentBookingPage() {
         dealershipName: selectedDealershipName || null,
         date,
         time,
+        userSummary,
+        financialSnapshot,
+        savedCars,
         comments,
         status: "requested",
         createdAt: Date.now()

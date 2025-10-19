@@ -1,9 +1,9 @@
-# ⚙️ ToyotaPath Backend API
+# ⚙️ DriveWise Backend API
 
 ## Express + TypeScript + REST API
 
 ### Overview
-The backend API for ToyotaPath, providing REST endpoints for vehicle data, financing calculations, dealer information, and trade-in estimates. Built for the Toyota Financial Services hackathon.
+The backend API for DriveWise, providing REST endpoints for vehicle data, financing calculations, dealer information, and trade-in estimates. Built for the Toyota Financial Services hackathon.
 
 ---
 
@@ -395,4 +395,4 @@ npm test         # Run tests
 
 ---
 
-*Part of ToyotaPath - Toyota Financial Services Hackathon*
+*Part of DriveWise - Toyota Financial Services Hackathon*

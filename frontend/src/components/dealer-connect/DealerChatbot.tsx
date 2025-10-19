@@ -9,7 +9,7 @@ export default function DealerChatbot() {
     {
       id: '1',
       role: 'assistant',
-      content: "Hi! I'm your ToyotaPath assistant. I can help you explore financing options, compare vehicles, or connect you with local dealers. What would you like to do today?",
+      content: "Hi! I'm your DriveWise assistant. I can help you explore financing options, compare vehicles, or connect you with local dealers. What would you like to do today?",
   timestamp: new Date().toISOString(),
       suggestions: [
         'Find affordable vehicles',
@@ -39,9 +39,9 @@ export default function DealerChatbot() {
     // Simulate AI response
     setTimeout(() => {
       const responses = {
-        affordable: "Based on your budget of $1,040/month, I can show you several great options:\n\n🚗 2024 Corolla XSE - $358/mo (lease)\n🚙 2024 Camry SE - $429/mo (finance)\n🚕 2024 RAV4 XLE - $498/mo (finance)\n\nWould you like to see detailed comparisons?",
-        compare: "Let me break down Lease vs Buy for you:\n\n**Lease Benefits:**\n✅ Lower monthly payments\n✅ Drive new car every 2-3 years\n✅ Warranty coverage\n❌ No ownership\n❌ Mileage restrictions\n\n**Buy Benefits:**\n✅ Build equity\n✅ No mileage limits\n✅ Customization freedom\n❌ Higher payments\n❌ Maintenance costs after warranty\n\nBased on your profile, I'd recommend financing if you plan to keep the car 5+ years.",
-        dealer: "I've found 4 certified Toyota dealers near you:\n\n🏆 Eastside Toyota Center (8.7 mi) - 4.9★\n   Special: $2,500 loyalty rebate\n\n📍 Toyota of Downtown (2.3 mi) - 4.8★\n   Special: 0% APR for 60 months\n\n🚗 Northside Toyota (5.1 mi) - 4.6★\n   Special: Free maintenance 2 years\n\nWould you like to schedule a test drive or request a quote?",
+        affordable: "Based on your budget of $1,040/month, I can show you several great options:\n\n 2024 Corolla XSE - $358/mo (lease)\n🚙 2024 Camry SE - $429/mo (finance)\n 2024 RAV4 XLE - $498/mo (finance)\n\nWould you like to see detailed comparisons?",
+        compare: "Let me break down Lease vs Buy for you:\n\n**Lease Benefits:**\n Lower monthly payments\n Drive new car every 2-3 years\n Warranty coverage\n No ownership\n Mileage restrictions\n\n**Buy Benefits:**\n Build equity\n No mileage limits\n Customization freedom\n Higher payments\n Maintenance costs after warranty\n\nBased on your profile, I'd recommend financing if you plan to keep the car 5+ years.",
+        dealer: "I've found 4 certified Toyota dealers near you:\n\n Eastside Toyota Center (8.7 mi) - 4.9★\n   Special: $2,500 loyalty rebate\n\n Toyota of Downtown (2.3 mi) - 4.8★\n   Special: 0% APR for 60 months\n\n Northside Toyota (5.1 mi) - 4.6★\n   Special: Free maintenance 2 years\n\nWould you like to schedule a test drive or request a quote?",
         default: "I'd be happy to help with that! Could you provide more details about:\n• Your preferred vehicle type\n• Your budget range\n• Whether you're considering trade-in\n\nOr I can connect you with a live dealer specialist right away!",
       };
 
@@ -75,7 +75,7 @@ export default function DealerChatbot() {
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-lg">ToyotaPath Assistant</h3>
+            <h3 className="font-bold text-lg">DriveWise Assistant</h3>
             <p className="text-sm opacity-90">Your personal car financing guide</p>
           </div>
           <button className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors">

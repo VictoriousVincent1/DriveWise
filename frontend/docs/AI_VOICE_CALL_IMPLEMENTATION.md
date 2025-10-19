@@ -2,7 +2,7 @@
 
 ## 🎉 What's Been Implemented
 
-Your ToyotaPath app now has an **AI Voice Assistant** that can call users on their phone! This is a sophisticated feature that combines:
+Your DriveWise app now has an **AI Voice Assistant** that can call users on their phone! This is a sophisticated feature that combines:
 
 - **Twilio** - Makes actual phone calls
 - **ElevenLabs** - Natural AI voice (already configured ✅)
@@ -118,7 +118,7 @@ npm run dev
 
 ## 🎙️ Example Conversation
 
-**AI:** "Hello! I'm the ToyotaPath assistant. How can I assist you with your car shopping journey today?"
+**AI:** "Hello! I'm the DriveWise assistant. How can I assist you with your car shopping journey today?"
 
 **You:** "I'm looking for an SUV"
 

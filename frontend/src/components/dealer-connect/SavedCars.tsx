@@ -4,6 +4,10 @@ import VehicleComparison from './VehicleComparison';
 
 // Mock data for development and legacy imports
 export const mockSavedCars: Vehicle[] = [
+<<<<<<< HEAD
+=======
+  //examples
+>>>>>>> fea63a6a403c7c830044ac8342b1be100e759891
   {
     id: 'camry-2026-le',
     make: 'Toyota',
@@ -126,7 +130,11 @@ export default function SavedCars() {
             <img src={car.image} alt={car.model} className="w-full h-24 object-cover rounded mb-1" />
             <div className="font-semibold">{car.year} {car.make} {car.model}</div>
             <div className="text-sm text-gray-500">{car.trim}</div>
+<<<<<<< HEAD
             <div className="text-sm">{car.msrp ? `$${car.msrp.toLocaleString()}` : ''}</div>
+=======
+            <div className="text-sm">{car.msrp != null ? `$${car.msrp.toLocaleString()}` : 'N/A'}</div>
+>>>>>>> fea63a6a403c7c830044ac8342b1be100e759891
             <input type="checkbox" checked={selected.includes(car.id)} readOnly className="mt-1" /> Select
           </div>
         ))}
@@ -157,13 +165,23 @@ export default function SavedCars() {
                   <tr>
                     <td className="p-2 border font-semibold">MSRP</td>
                     {selectedCars.map(car => (
+<<<<<<< HEAD
                       <td key={car.id} className="p-2 border">{car.msrp != null ? `$${car.msrp.toLocaleString()}` : '—'}</td>
+=======
+                      <td key={car.id} className="p-2 border">{car.msrp != null ? `$${car.msrp.toLocaleString()}` : 'N/A'}</td>
+>>>>>>> fea63a6a403c7c830044ac8342b1be100e759891
                     ))}
                   </tr>
                   <tr>
                     <td className="p-2 border font-semibold">Fuel Economy</td>
                     {selectedCars.map(car => (
+<<<<<<< HEAD
                       <td key={car.id} className="p-2 border">{car.fuelEconomy ? `${car.fuelEconomy.city}/${car.fuelEconomy.highway} mpg` : '—'}</td>
+=======
+                      <td key={car.id} className="p-2 border">
+                        {car.fuelEconomy ? `${car.fuelEconomy.city}/${car.fuelEconomy.highway} mpg` : 'N/A'}
+                      </td>
+>>>>>>> fea63a6a403c7c830044ac8342b1be100e759891
                     ))}
                   </tr>
                   <tr>
@@ -177,7 +195,11 @@ export default function SavedCars() {
                     {selectedCars.map(car => (
                       <td key={car.id} className="p-2 border">
                         <ul className="list-disc ml-4">
+<<<<<<< HEAD
                           {(car.features || []).map((f: string) => <li key={f}>{f}</li>)}
+=======
+                          {(car.features ?? []).map((f: string) => <li key={f}>{f}</li>)}
+>>>>>>> fea63a6a403c7c830044ac8342b1be100e759891
                         </ul>
                       </td>
                     ))}

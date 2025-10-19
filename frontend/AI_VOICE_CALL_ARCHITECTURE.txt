@@ -9,7 +9,7 @@
                                                             ↓
                                                      [Phone rings]
                                                             ↓
-                                        "Hello! I'm the ToyotaPath assistant..."
+                                        "Hello! I'm the DriveWise assistant..."
                                                             ↓
                                                   User speaks question
                                                             ↓

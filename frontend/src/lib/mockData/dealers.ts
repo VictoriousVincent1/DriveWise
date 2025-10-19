@@ -1,4 +1,4 @@
-// Mock dealer data for ToyotaPath
+// Mock dealer data for DriveWise
 
 import { Dealer, Vehicle } from '@/types';
 import { mockVehicles } from './vehicles';

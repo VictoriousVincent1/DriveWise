@@ -162,7 +162,7 @@ async function seedDealerships() {
 }
 
 async function seedVehicleInventory() {
-  console.log('🚗 Seeding vehicle inventory...');
+  console.log(' Seeding vehicle inventory...');
   
   let totalVehicles = 0;
   

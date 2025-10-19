@@ -40,7 +40,7 @@ export default function VehicleComparison({ vehicles, dealers }: VehicleComparis
                 <th key={vehicle.id} className="p-4 text-center min-w-[200px]">
                   <div className="space-y-2">
                     <div className="w-full h-32 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <span className="text-4xl">🚗</span>
+                      <span className="text-4xl"></span>
                     </div>
                     <div>
                       <p className="font-bold">{vehicle.year} {vehicle.model}</p>

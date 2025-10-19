@@ -18,7 +18,12 @@
     "pdfkit": "^0.17.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+<<<<<<< HEAD
     "tailwind-merge": "^2.6.0"
+=======
+    "tailwind-merge": "^3.3.1",
+    "twilio": "^5.10.3"
+>>>>>>> fea63a6a403c7c830044ac8342b1be100e759891
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

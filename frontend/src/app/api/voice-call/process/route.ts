@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
     gather.say("Is there anything else I can help you with?");
   } else {
     // End call
-    response.say("Thank you for calling ToyotaPath! Have a great day!");
+    response.say("Thank you for calling DriveWise! Have a great day!");
     response.hangup();
   }
 
@@ -99,7 +99,11 @@ async function generateGeminiResponse(
 ): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return 'Sorry, Gemini AI is not configured.';
+<<<<<<< HEAD
   const prompt = `${ctx?.personaPrompt || ''}\n${ctx?.systemPrompt || ''}\n${ctx?.userInfo ? ctx.userInfo + '\n' : ''}User: ${userInput}\nAssistant:`;
+=======
+  const prompt = `You are a helpful DriveWise assistant. Answer the user naturally and conversationally.\n\nUser: ${userInput}\nAssistant:`;
+>>>>>>> fea63a6a403c7c830044ac8342b1be100e759891
   // Log the prompt being sent to Gemini
   console.log('--- GEMINI PROMPT ---');
   console.log(prompt);

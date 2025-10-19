@@ -1,7 +1,7 @@
 # AI Voice Assistant Phone Call Setup
 
 ## Overview
-This feature allows the ToyotaPath assistant to call users and have voice conversations using:
+This feature allows the DriveWise assistant to call users and have voice conversations using:
 - **Twilio** - Phone call infrastructure
 - **ElevenLabs** - Natural text-to-speech
 - **OpenAI/Anthropic** - Conversation AI

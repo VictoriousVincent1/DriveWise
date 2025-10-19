@@ -1,4 +1,4 @@
-# 🚗 ToyotaPath - Frontend/Backend Split Architecture
+#  DriveWise - Frontend/Backend Split Architecture
 
 ## Project Structure
 
@@ -257,7 +257,7 @@ npm run build
 
 ## 📝 API Documentation
 
-### Example: Calculate Payment
+
 
 **Request:**
 ```bash

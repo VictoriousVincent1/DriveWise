@@ -105,7 +105,7 @@ export default function DealerStockManager() {
                 ) : (
                   <div>
                     <div className="h-32 bg-gray-200 flex items-center justify-center">
-                      <span className="text-4xl">🚗</span>
+                      <span className="text-4xl"></span>
                     </div>
                     <div className="p-4">
                       <div className="font-bold text-lg mb-1">{v.year} {v.make} {v.model}</div>

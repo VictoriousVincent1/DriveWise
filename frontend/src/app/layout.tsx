@@ -25,9 +25,10 @@ export default function RootLayout({
 }>) {
   const [isDealer, setIsDealer] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
-
+  const [user, setUser] = useState<any>(null);
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (user) => {
+      setUser(user ?? null);
       if (!user) {
         setIsDealer(false);
         setLoading(false);
@@ -42,9 +43,10 @@ export default function RootLayout({
   }, []);
 
   return (
+
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>DriveWise - Your Smart Companion for Car Financing & Ownership</title>
+  <title>DriveWise - Your Smart Companion for Car Financing</title>
         <meta name="description" content="Personalized financing, dealership connections, and smart trade-in tools for your next vehicle." />
       </head>
       <body
@@ -55,10 +57,10 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center h-16 w-full">
               <div className="flex items-center space-x-2">
-                <Link href="/" className="flex items-center space-x-2">
-                  <span className="text-2xl">🚗</span>
-                  <span className="text-xl font-bold text-gray-900">DriveWise</span>
-                </Link>
+               <Link href="/" className="flex items-center space-x-2">
+  <span className="text-2xl"></span>
+  <span className="text-xl font-bold text-gray-900">DriveWise</span>
+</Link>
               </div>
               <div className="flex-1" />
               {!loading && (
@@ -107,7 +109,7 @@ export default function RootLayout({
               <div>
                 <h3 className="text-lg font-bold mb-4">DriveWise</h3>
                 <p className="text-gray-400 text-sm">
-                  Your trusted companion for smart car financing and ownership.
+                  Your trusted companion for smart car financing.
                 </p>
               </div>
               <div>
