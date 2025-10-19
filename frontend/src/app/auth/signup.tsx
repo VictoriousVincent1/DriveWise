@@ -3,7 +3,7 @@ import { useState } from "react";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 import { db } from "../../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
@@ -44,7 +44,21 @@ export default function SignupPage() {
   const handleGoogle = async () => {
     setError("");
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const cred = await signInWithPopup(auth, new GoogleAuthProvider());
+      const user = cred.user;
+      // If a dealer doc exists, go to dealer dashboard
+      const dealerRef = doc(db, "dealers", user.uid);
+      const dealerSnap = await getDoc(dealerRef);
+      if (dealerSnap.exists()) {
+        router.push("/dealer-employee");
+        return;
+      }
+      // Ensure a users doc exists with default role
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        await setDoc(userRef, { email: user.email ?? "", role: "user", createdAt: new Date().toISOString() }, { merge: true });
+      }
       router.push("/profile");
     } catch (err: any) {
       setError(err.message);
