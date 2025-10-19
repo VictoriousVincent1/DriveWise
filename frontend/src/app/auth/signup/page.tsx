@@ -4,8 +4,6 @@ import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } f
 import { auth, db } from "../../../lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { setDoc, doc } from "firebase/firestore";
-import { db } from "../../../lib/firebase";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -24,15 +22,18 @@ export default function SignupPage() {
   const [monthlyDebt, setMonthlyDebt] = useState("");
   const [savingsBalance, setSavingsBalance] = useState("");
   
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  // Role selection and dealer flag
+  const [role, setRole] = useState("user");
+  const [wantsDealer, setWantsDealer] = useState(false);
+  
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = async (e: any) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       // Validate financial inputs
       const creditScoreNum = parseInt(creditScore);
@@ -40,8 +41,12 @@ export default function SignupPage() {
       const monthlyDebtNum = parseFloat(monthlyDebt);
       const savingsBalanceNum = parseFloat(savingsBalance);
 
-      if (creditScoreNum < 300 || creditScoreNum > 850) {
+      if (isNaN(creditScoreNum) || creditScoreNum < 300 || creditScoreNum > 850) {
         throw new Error("Credit score must be between 300 and 850");
+      }
+
+      if (isNaN(monthlyIncomeNum) || monthlyIncomeNum <= 0) {
+        throw new Error("Monthly income must be a number greater than 0");
       }
 
       // 1. Create Firebase user
@@ -139,6 +144,7 @@ export default function SignupPage() {
 
   const handleGoogle = async () => {
     setError("");
+    setLoading(true);
     try {
       const cred = await signInWithPopup(auth, new GoogleAuthProvider());
       const user = cred.user;
@@ -162,6 +168,8 @@ export default function SignupPage() {
       router.push("/profile");
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 

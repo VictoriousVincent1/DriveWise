@@ -71,3 +71,10 @@ export async function getAllCustomersWithProfiles() {
   if (!response.ok) throw new Error('Failed to fetch customers');
   return response.json();
 }
+
+// Get vehicle recommendations based on financial profile
+export async function getRecommendations(nessieCustomerId: string) {
+  const response = await fetch(`${API_URL}/api/recommendations/${nessieCustomerId}`);
+  if (!response.ok) throw new Error('Failed to fetch recommendations');
+  return response.json();
+}
